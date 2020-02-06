@@ -5,6 +5,7 @@ A project to develop post-quantum public encryption scheme
 clone the entire RLCEv1 directory. Then run:
 
 make
+
 ./rlce
 
 and follow the instructions
