@@ -1,2 +1,7 @@
 # Text editors and IDES
 .DS_Store
+.o
+.a
+example
+rlce
+TimeCost.txt
