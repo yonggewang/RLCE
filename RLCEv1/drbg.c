@@ -240,12 +240,13 @@ int hash_DRBG_Instantiate(hash_drbg_state_t drbgState, drbg_Input_t drbgInput){
 /* implement "Hash_DRBG_Generate Process" in NIST SP800-90Ar1 Section 10.1.1.4 */
 int hash_DRBG_Generate(hash_drbg_state_t drbgState,drbg_Input_t drbgInput,
 		       unsigned char returned_bytes[],
-		       unsigned long req_no_of_bytes) {
+		       long unsigned req_no_of_bytes) {
   int i,j,ret = 0;
   if (drbgState->reseed_counter > drbgState->reseed_interval){
     return DRBGRESEEDREQUIRED;
   }
   void (*sha)(unsigned char[], int, unsigned int[]);
+  sha = 0;
   if (drbgState->shatype == 0) {
     sha = sha1_md;
   } else if (drbgState->shatype == 1) {
@@ -377,7 +378,7 @@ int hash_DRBG_Reseed(hash_drbg_state_t drbgState, drbg_Input_t drbgInput){
 		     drbgState->C, drbgState->seedlen);
   drbgState->reseed_counter=1;
   return ret;
-};
+}
 
 
 int hash_DRBG(hash_drbg_state_t drbgState, drbg_Input_t drbgInput,
@@ -483,7 +484,7 @@ int block_cipher_df(int aestype,unsigned char input[], uint32_t inputlen,
   S[8+inputlen]=0x80;
   aeskey_t key = aeskey_init(aestype);
   unsigned char temp[key->keylen+24];
-  unsigned int tempLen =0;
+  long unsigned tempLen =0;
   unsigned char IV[16+sLen];
   memset(IV, 0, 16*sizeof(unsigned char));
   uint32_t i=0;
@@ -555,7 +556,7 @@ int ctr_DRBG_Update (unsigned char provided_data[], unsigned short dataLen, ctr_
 
 /* 10.2.1.3.1 Instantiation When a Derivation Function is Not Used */
 int ctr_DRBG_Instantiate_algorithm(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput){
-  int i;
+  long unsigned i;
   if (drbgInput->entropylen < drbgState->seedlen) {
     printf("drbgInput->entropylen=%d,drbgState->seedlen=%d \n", drbgInput->entropylen, drbgState->seedlen);
     return ENTROPYLENTOOSHORT;
@@ -628,7 +629,7 @@ int ctr_DRBG_Reseed(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput){
   ctr_DRBG_Update(add, drbgState->seedlen, drbgState);
   drbgState->reseed_counter = 1;
   return 0;
-};
+}
 
 /* implements NIST SP800-90Ar1 Section 10.2.1.4.2 Reseeding When a Derivation Function is Used */
 int ctr_DRBG_Reseed_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput){
@@ -645,7 +646,7 @@ int ctr_DRBG_Reseed_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput){
   ctr_DRBG_Update(seed, drbgState->seedlen, drbgState);
   drbgState->reseed_counter = 1;
   return 0;
-};
+}
 
 /* implement 10.2.1.5.1 Generating Pseudorandom Bits When a Derivation Function is Not Used */
 int ctr_DRBG_Generate(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,

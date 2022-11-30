@@ -89,7 +89,7 @@ static int find_deg1_roots(poly_t p, field_t pRoots[], int m) {
   return 0;
 }
 
-field_t trace(field_t a, int m) {
+field_t trace(int m) {
   int i;
   field_t alpha=GF_exp(1, m);
   field_t ret=alpha;
@@ -114,7 +114,7 @@ int find_deg2_roots_rt(poly_t p, field_t pRoots[], int m) {
   /* using x=(b/a)*y z=(a/b)*X, transform aX^2+bX+c to z^2+z+u (u=ac/b^2) */
   unsigned int ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
   field_t u=GF_exp(ulog,m);
-  field_t tr = trace(u,m);  
+  field_t tr = trace(m);  
   if (tr) return 0;
   /* e_j = alpha^{j} + alpha^{2j} */
   for (j=0; j<=m; j++) {
@@ -160,7 +160,7 @@ int find_deg2_roots_rt(poly_t p, field_t pRoots[], int m) {
   memcpy(rows0, rows, m*sizeof(field_t)); /* for 0 */
   memcpy(rows1, rows, m*sizeof(field_t)); /* for 1 */  
   memset(pRoots, 0, 2*sizeof(field_t));
-  unsigned int pos0;
+  int pos0=0;
   for (i=0; i<m; i++) if (positions[i]==m) pos0=i;  
   for (i=0;i<m;i++) rows1[i] ^= ((rows[i] >>(m-pos0)) & 0x0001);
   for (i=m-1;i>=0;i--) {
@@ -181,7 +181,7 @@ int find_deg2_roots_rt(poly_t p, field_t pRoots[], int m) {
 
 int find_deg2_roots(poly_t p, field_t pRoots[], int m) {
   /* this process uses pre-computed matrix coefficients for 
-   * when m = 10 or m = 11. For other m, it will call find_deg2_roots_rt */
+   * m = 10 or m = 11. For other m, it will call find_deg2_roots_rt */
   if (p->coeff[0] == 0) {
     pRoots[0] = GF_div(p->coeff[1], p->coeff[2], m);
     pRoots[1] = 0;
@@ -377,7 +377,8 @@ static int affine4_roots(field_t a, field_t b, field_t c, field_t *roots, int m)
     return 1;
   }
   memset(roots, 0, 4*sizeof(field_t));
-  unsigned int pos0, pos1;
+  int pos0 =0;
+  int pos1=0;
   unsigned int flag = 0;
   field_t rows0[m],rows1[m];
   memcpy(rows0, rows, m*sizeof(field_t)); /* for 00 or 0 (ctr=1) */
@@ -514,7 +515,8 @@ int find_deg4_roots(poly_t p, field_t pRoots[], int m) {
     return ret;
   }
 
-  unsigned int alog, clog, elog;
+  unsigned int alog, clog;
+  unsigned int elog=0;
   field_t roots[4];
   memset(roots, 0, 4*sizeof(field_t));
   if (c !=0 ) {

@@ -140,7 +140,7 @@ drbg_Input_t drbgInput_init(unsigned char entropy[],int entropylen,
 int hash_DRBG_Instantiate(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int hash_DRBG_Generate(hash_drbg_state_t drbgState,drbg_Input_t drbgInput,
 		       unsigned char returned_bytes[],
-		       unsigned long req_no_of_bytes);
+		       long unsigned req_no_of_bytes);
 int hash_DRBG_Reseed(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
 void free_drbg_input(drbg_Input_t drbgInput);
 int hash_DRBG(hash_drbg_state_t drbgState, drbg_Input_t drbgInput,
@@ -184,8 +184,7 @@ int writePK(char* filename,RLCE_public_key_t  pk, int hex);
 RLCE_public_key_t readPK(char* filename, int hex);
 
 int getRLCEparameters(unsigned int para[], unsigned int scheme, unsigned int padding);
-int RLCE_encrypt(unsigned char msg[], unsigned long long mLen,
-		 unsigned char entropy[], unsigned int entropylen,
+int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entropylen,
 		 unsigned char nonce[], unsigned int noncelen,
 		 RLCE_public_key_t pk, unsigned char cipher[], unsigned long long *clen);
 int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_key_t sk,
@@ -209,8 +208,8 @@ void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int 
 void GF_mulexpvec2(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m);
 void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, unsigned int m);
 void GF_vecinverse(field_t vec1[], field_t vec2[], int vecsize, int m);
-extern int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], int vecSize);
-int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], int vecSize);
+extern int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], unsigned int vecSize);
+int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], unsigned int vecSize);
 void GF_divvec(field_t vec1[],field_t vec2[], int vsize, unsigned int m);
 int GF_vecreversemul(field_t vec1[],field_t vec2[],int vsize,int m);
 void GF_evalpoly(int log, poly_t p, field_t input[], field_t output[], int size, int m);
@@ -234,7 +233,7 @@ field_t GF_mul(field_t x, field_t y, int m);
 //#define GF_mul(x,y,m) ((GFMULTAB)?GF_tablemul(x,y,m):GF_regmul(x,y,m))
 
 
-poly_t poly_init(int size);
+poly_t poly_init(unsigned int size);
 void poly_clear(poly_t p);
 void poly_zero(poly_t p);
 void poly_copy(poly_t p, poly_t dest);
@@ -287,10 +286,10 @@ vector_t vec_init(int n);
 void vector_free(vector_t v);
 vector_t permu_inv(vector_t p);
 int getRandomMatrix(matrix_t mat, field_t randE[]);
-vector_t getPermutation(int size, int t, unsigned char randBytes[], int nRB);
+vector_t getPermutation(int size, int t, unsigned char randBytes[]);
 int randomBytes2FE(unsigned char randomBytes[], int nRB,
 		   field_t output[], int outputSize, int m);
-int getShortIntegers(unsigned char randomBytes[], int nRB,
+int getShortIntegers(unsigned char randomBytes[],
 		     unsigned short output[], int outputSize);
 int getMatrixAandAinv(matrixA_t mat, matrixA_t matInv,
 			    field_t randomElements[], int randElen,int m);
@@ -382,6 +381,8 @@ int rlce_decrypt(char* prikey, char* cipherfile);
 #define CIPHERNOTMULTIPLE -69
 #define DECLENWRONG -70
 #define PUBKEYHASHINCORRECTINCIPHER -71
+#define FGETSWRONG -72
+#define FREADWRONG -73
 
 #define genkey128 1
 #define genkey192 2

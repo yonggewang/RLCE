@@ -66,7 +66,7 @@ int getOneCipher(RLCE_public_key_t pk, unsigned char* cipher, unsigned long long
   memcpy(&(message[actualmlen+2]), S,2);
   */
   unsigned char nonce[1];
-  ret=RLCE_encrypt(message,mlen,entropy,pk->para[19],nonce,0,pk,cipher,clen);
+  ret=RLCE_encrypt(message,entropy,pk->para[19],nonce,0,pk,cipher,clen);
   free(message);
   return ret;
 }

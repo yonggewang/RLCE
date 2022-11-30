@@ -56,7 +56,8 @@ unsigned long long binomial(unsigned long long n, unsigned long long k) {
 int binomialMOD2(unsigned int n, unsigned int k) {
   /* https://en.wikipedia.org/wiki/Lucas%27s_theorem */
   if (k>n) return 0;
-  int len=0, tmp=1, i;
+  int len=0, i;
+  unsigned int tmp=1;
   while (n>tmp){
     tmp =(tmp<<1);
     len++;
@@ -157,7 +158,7 @@ void bipoly_print(bipoly_t p){
   printf("\n");
 }
 
-int verifyZeroOrder( bipoly_t  Q, int n, int k, int omega, field_t alpha[], field_t beta[], int m) {
+int verifyZeroOrder( bipoly_t  Q, int n, int omega, field_t alpha[], field_t beta[], int m) {
   field_t delta;
   int yes=0;
   unsigned int tmp;
@@ -191,7 +192,7 @@ int verifyZeroOrder( bipoly_t  Q, int n, int k, int omega, field_t alpha[], fiel
   return yes;
 }
 
-int verifyZeroOrderOne( bipoly_t  Q, int n, int k, int omega, field_t alpha, field_t beta, int m) {
+int verifyZeroOrderOne( bipoly_t  Q, int omega, field_t alpha, field_t beta, int m) {
   field_t delta;
   int yes=0;
   unsigned int tmp;
@@ -237,7 +238,8 @@ bipoly_t koetterInterpolation(int n, int k, int omega, int Lomega, field_t alpha
   }
   field_t delta[Lomega+1], deltaxj0;
   unsigned int tmp;
-  int alphalog, betalog,j0;
+  int alphalog, j0;
+  int betalog=0;
   unsigned int deltaj0log, deltajlog, deltaxj0log;
   int ubound;
   for (i=0; i<n; i++) {

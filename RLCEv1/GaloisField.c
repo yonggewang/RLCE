@@ -106,8 +106,9 @@ int GF_init_div_table(int m) {
 
 field_t GF_add(field_t x, field_t y) {return x^y;}
 
-int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], int vecSize){
-  int i, longsize;
+int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], unsigned int vecSize){
+  unsigned int i;
+  int longsize;
   longsize = sizeof(unsigned long long);
   if (vec3==NULL) vec3=vec2;
   unsigned int size=(sizeof(field_t)*vecSize)/longsize;
@@ -120,8 +121,9 @@ int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], int vecSize){
   return 0;
 }
 
-int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], int vecSize){
-  int i, longsize;
+int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], unsigned int vecSize){
+  int longsize;
+  unsigned int i;
   longsize = sizeof(unsigned long long);
   field_t vec1[longsize/sizeof(field_t)];
   for (i=0;i<longsize/sizeof(field_t); i++) vec1[i]=x;
@@ -328,7 +330,7 @@ int getMatrixAandAinv(matrixA_t mat, matrixA_t matInv,
     j=j+4;
   }
   return 0;
-};
+}
 
 void GF_expvec(field_t vec[], int size, int m) {
   GF_init_logexp_table(m);

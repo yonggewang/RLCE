@@ -37,7 +37,7 @@ int RLCEpadDecode(unsigned char encoded[],unsigned int encodedLen,
 		  unsigned char message[], unsigned long long *mlen,
 		  RLCE_private_key_t sk,
 		  unsigned char e0[], unsigned int e0Len);
-int rangeadd(unsigned char bytes1[], unsigned char bytes2[], int bytesize);
+int rangeadd(unsigned char bytes1[], unsigned char bytes2[], unsigned int bytesize);
 poly_t genPolyTable(int deg);
 
 int getRLCEparameters(unsigned int para[], unsigned int scheme, unsigned int padding) {
@@ -1524,8 +1524,7 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   return 0;
 }
 
-int RLCE_encrypt(unsigned char msg[], unsigned long long msgLen,
-                 unsigned char entropy[], unsigned int entropylen,
+int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entropylen,
 		 unsigned char nonce[], unsigned int noncelen,
                  RLCE_public_key_t pk, unsigned char cipher[], unsigned long long *clen){
   unsigned char pers[] ="PQENCRYPTIONRLCEver1";
@@ -2604,7 +2603,7 @@ void hex2char(char hex[], unsigned char hexChar[], int charlen){
   }
 }
 
-int rangeadd(unsigned char bytes1[], unsigned char bytes2[], int bytesize){
+int rangeadd(unsigned char bytes1[], unsigned char bytes2[], unsigned int bytesize){
   int i;
     if (sizeof(long)==8) {
       unsigned int size=bytesize/8;
