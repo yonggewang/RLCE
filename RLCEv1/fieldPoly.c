@@ -19,7 +19,7 @@
 
 #include "rlce.h"
 
-poly_t poly_init(unsigned int n) {
+poly_t poly_init(size_t n) {
   poly_t p;
   p = (poly_t) malloc(sizeof (struct polynomial));
   p->deg = -1;

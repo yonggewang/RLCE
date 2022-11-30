@@ -108,11 +108,11 @@ int find_deg2_roots_rt(poly_t p, field_t pRoots[], int m) {
   int i,j;
   memset(rows, 0, m*sizeof(field_t));
   
-  unsigned int a = GF_log(p->coeff[2], m);
-  unsigned int b = GF_log(p->coeff[1], m);
-  unsigned int c = GF_log(p->coeff[0], m);
+  size_t a = GF_log(p->coeff[2], m);
+  size_t b = GF_log(p->coeff[1], m);
+  size_t c = GF_log(p->coeff[0], m);
   /* using x=(b/a)*y z=(a/b)*X, transform aX^2+bX+c to z^2+z+u (u=ac/b^2) */
-  unsigned int ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
+  size_t ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
   field_t u=GF_exp(ulog,m);
   field_t tr = trace(m);  
   if (tr) return 0;
@@ -203,11 +203,11 @@ int find_deg2_roots(poly_t p, field_t pRoots[], int m) {
   memset(ubit, 0, m*sizeof(field_t));
   memset(rows, 0, m*sizeof(field_t));
   
-  unsigned int a = GF_log(p->coeff[2], m);
-  unsigned int b = GF_log(p->coeff[1], m);
-  unsigned int c = GF_log(p->coeff[0], m);
+  size_t a = GF_log(p->coeff[2], m);
+  size_t b = GF_log(p->coeff[1], m);
+  size_t c = GF_log(p->coeff[0], m);
   /* using x=(b/a)*y z=(a/b)*X, transform aX^2+bX+c to z^2+z+u (u=ac/b^2) */
-  unsigned int ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
+  size_t ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
   field_t u=GF_exp(ulog,m);
   
   for (i=0;i<m;i++) ubit[i]= ((u>>i) & 0x0001);
@@ -287,11 +287,11 @@ int find_deg2_roots_table(poly_t p, field_t pRoots[], int m) {
     pRoots[0] = GF_div(p->coeff[1], p->coeff[2], m);
     return 1;
   } else  {
-    unsigned int a = GF_log(p->coeff[2], m);
-    unsigned int b = GF_log(p->coeff[1], m);
-    unsigned int c = GF_log(p->coeff[0], m);
+    size_t a = GF_log(p->coeff[2], m);
+    size_t b = GF_log(p->coeff[1], m);
+    size_t c = GF_log(p->coeff[0], m);
     /* using z=a/bX, transform aX^2+bX+c into z^2+z+u (u=ac/b^2) */
-    unsigned int ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
+    size_t ulog = (a +c +2*(fieldSize(m)-1 -b)) % (fieldSize(m)-1) ;
     field_t u=GF_exp(ulog,m);
     field_t r=BTATable[u];
     if (r !=0 ) {
@@ -379,7 +379,7 @@ static int affine4_roots(field_t a, field_t b, field_t c, field_t *roots, int m)
   memset(roots, 0, 4*sizeof(field_t));
   int pos0 =0;
   int pos1=0;
-  unsigned int flag = 0;
+  size_t flag = 0;
   field_t rows0[m],rows1[m];
   memcpy(rows0, rows, m*sizeof(field_t)); /* for 00 or 0 (ctr=1) */
   memcpy(rows1, rows, m*sizeof(field_t)); /* for 01 or 1 (ctr=1) */
@@ -515,8 +515,8 @@ int find_deg4_roots(poly_t p, field_t pRoots[], int m) {
     return ret;
   }
 
-  unsigned int alog, clog;
-  unsigned int elog=0;
+  size_t alog, clog;
+  size_t elog=0;
   field_t roots[4];
   memset(roots, 0, 4*sizeof(field_t));
   if (c !=0 ) {
@@ -559,7 +559,7 @@ int find_deg4_roots(poly_t p, field_t pRoots[], int m) {
   return ret;
 }
 
-static int find_roots_BTA_aux(poly_t trace[], poly_t p, unsigned int ctr, field_t pRoots[], int m) {
+static int find_roots_BTA_aux(poly_t trace[], poly_t p, size_t ctr, field_t pRoots[], int m) {
   int numRoots=0, ret;
   poly_t p1, p2, tracectr;
   if (p->deg <=0) return 0;

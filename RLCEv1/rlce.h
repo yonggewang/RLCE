@@ -47,7 +47,7 @@ typedef struct polynomial {
 
 
 typedef struct RLCE_private_key {
-  unsigned int* para;
+  size_t* para;
   vector_t perm1; /* inverse of perm1*/
   vector_t perm2;/* inverse of perm2*/
   poly_t generator;
@@ -59,7 +59,7 @@ typedef struct RLCE_private_key {
 
 
 typedef struct RLCE_public_key {
-  unsigned int* para;
+  size_t* para;
   matrix_t G;
 } * RLCE_public_key_t;
 
@@ -70,7 +70,7 @@ typedef struct AESkey {
   unsigned short Nb;
   unsigned short wLen;
   unsigned short keylen;
-  unsigned char * key;
+  uint8_t * key;
 } * aeskey_t;
 
 typedef struct hash_drbg_state {
@@ -82,16 +82,16 @@ typedef struct hash_drbg_state {
   int max_B_per_req; /* max_number_of_bytes_per_request */
   int security_strength;
   unsigned long reseed_counter;
-  unsigned char *V;
-  unsigned char *C;
+  uint8_t *V;
+  uint8_t *C;
 } * hash_drbg_state_t;
 
 typedef struct drbg_Input {
   int entropylen, noncelen, perslen, addlen;
-  unsigned char *entropy;
-  unsigned char *nonce;
-  unsigned char *personalization_string;
-  unsigned char *additional_input;
+  uint8_t *entropy;
+  uint8_t *nonce;
+  uint8_t *personalization_string;
+  uint8_t *additional_input;
 } * drbg_Input_t;
 
 typedef struct ctr_drbg_state {
@@ -105,8 +105,8 @@ typedef struct ctr_drbg_state {
   unsigned long reseed_interval;
   /* following three are the working_state */
   unsigned long reseed_counter;
-  unsigned char *V; /* counter blocksize (16 byte) */
-  unsigned char *Key;
+  uint8_t *V; /* counter blocksize (16 byte) */
+  uint8_t *Key;
 } * ctr_drbg_state_t;
 
 typedef struct {
@@ -116,47 +116,47 @@ typedef struct {
 
 #endif
 
-int pk2B(RLCE_public_key_t pk, unsigned char pkB[], unsigned int *blen);
-int sk2B(RLCE_private_key_t sk, unsigned char skB[], unsigned int *blen);
-RLCE_public_key_t B2pk(const unsigned char binByte[], unsigned long long blen);
-RLCE_private_key_t B2sk(const unsigned char binByte[], unsigned long long blen);
-void hex2char(char * pos, unsigned char hexChar[], int charlen);
-unsigned char* rlceReadFile(char* filename, unsigned long long *blen, int hex);
-int rlceWriteFile(char* filename, unsigned char bytes[], unsigned long long blen, int hex);
+int pk2B(RLCE_public_key_t pk, uint8_t pkB[], size_t *blen);
+int sk2B(RLCE_private_key_t sk, uint8_t skB[], size_t *blen);
+RLCE_public_key_t B2pk(const uint8_t binByte[], unsigned long long blen);
+RLCE_private_key_t B2sk(const uint8_t binByte[], unsigned long long blen);
+void hex2char(char * pos, uint8_t hexChar[], int charlen);
+uint8_t* rlceReadFile(char* filename, unsigned long long *blen, int hex);
+int rlceWriteFile(char* filename, uint8_t bytes[], unsigned long long blen, int hex);
 aeskey_t aeskey_init(unsigned short kappa);
 void aeskey_free(aeskey_t);
-void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key);
-void AES_decrypt(unsigned char cipher[], unsigned char plain[], aeskey_t key);
+void AES_encrypt(uint8_t plain[], uint8_t cipher[], aeskey_t key);
+void AES_decrypt(uint8_t cipher[], uint8_t plain[], aeskey_t key);
 
-void sha1_md(unsigned char message[],int size, unsigned int md[5]);
-void sha256_md(unsigned char message[], int size, unsigned int md[8]);
-void sha512_md(unsigned char message[], int size, unsigned long md[8]);
+void sha1_md(uint8_t message[],int size, size_t md[5]);
+void sha256_md(uint8_t message[], int size, size_t md[8]);
+void sha512_md(uint8_t message[], int size, unsigned long md[8]);
 hash_drbg_state_t drbgstate_init(int shatype);
 void free_drbg_state(hash_drbg_state_t drbgState);
-drbg_Input_t drbgInput_init(unsigned char entropy[],int entropylen,
-			    unsigned char nonce[],int noncelen,
-			    unsigned char personalization_string[],int perslen,
-			    unsigned char additional_input[], int addlen);
+drbg_Input_t drbgInput_init(uint8_t entropy[],int entropylen,
+			    uint8_t nonce[],int noncelen,
+			    uint8_t personalization_string[],int perslen,
+			    uint8_t additional_input[], int addlen);
 int hash_DRBG_Instantiate(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int hash_DRBG_Generate(hash_drbg_state_t drbgState,drbg_Input_t drbgInput,
-		       unsigned char returned_bytes[],
+		       uint8_t returned_bytes[],
 		       long unsigned req_no_of_bytes);
 int hash_DRBG_Reseed(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
 void free_drbg_input(drbg_Input_t drbgInput);
 int hash_DRBG(hash_drbg_state_t drbgState, drbg_Input_t drbgInput,
-	      unsigned char output[], unsigned long outlen);
+	      uint8_t output[], unsigned long outlen);
 
 ctr_drbg_state_t ctr_drbgstate_init(unsigned short aestype);
 void free_ctr_drbg_state(ctr_drbg_state_t ctr_drbgState);
 int ctr_DRBG_Instantiate_algorithm(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int ctr_DRBG_Generate(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,
-		      unsigned char returned_bytes[],
+		      uint8_t returned_bytes[],
 		      unsigned long req_no_of_bytes);
 int ctr_DRBG_Reseed(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int ctr_DRBG(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,
-	     unsigned char output[], unsigned long outlen);
+	     uint8_t output[], unsigned long outlen);
 int ctr_DRBG_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,
-		unsigned char output[], unsigned long outlen);
+		uint8_t output[], unsigned long outlen);
 
 poly_t initialize_RS(int codelen, int codedim, int m);
 int rs_encode (poly_t genPoly, poly_t message, poly_t code, int m);
@@ -169,12 +169,12 @@ int FFT(poly_t f, vector_t output, vector_t base, int m);
 /* output->size = 2^{base->size}*/
 int GGIFFT(int i,vector_t base, field_t beta,vector_t output,poly_t r,matrix_t smat,int m);
 
-RLCE_private_key_t RLCE_private_key_init (unsigned int para[]);
+RLCE_private_key_t RLCE_private_key_init (size_t para[]);
 void RLCE_free_sk(RLCE_private_key_t sk);
-RLCE_public_key_t RLCE_public_key_init (unsigned int para[]);
+RLCE_public_key_t RLCE_public_key_init (size_t para[]);
 void RLCE_free_pk(RLCE_public_key_t pk);
-int RLCE_key_setup (unsigned char entropy[], int entropylen,
-		    unsigned char nonce[], int noncelen,
+int RLCE_key_setup (uint8_t entropy[], int entropylen,
+		    uint8_t nonce[], int noncelen,
 		    RLCE_public_key_t  pk, RLCE_private_key_t sk);
 
 /* hex=0: binary file; hex=1: hex file */
@@ -183,12 +183,12 @@ RLCE_private_key_t readSK(char* filename, int hex);
 int writePK(char* filename,RLCE_public_key_t  pk, int hex);
 RLCE_public_key_t readPK(char* filename, int hex);
 
-int getRLCEparameters(unsigned int para[], unsigned int scheme, unsigned int padding);
-int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entropylen,
-		 unsigned char nonce[], unsigned int noncelen,
-		 RLCE_public_key_t pk, unsigned char cipher[], unsigned long long *clen);
-int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_key_t sk,
-		 unsigned char msg[], unsigned long long *mlen);
+int getRLCEparameters(size_t para[], size_t scheme, size_t padding);
+int RLCE_encrypt(uint8_t msg[], uint8_t entropy[], size_t entropylen,
+		 uint8_t nonce[], size_t noncelen,
+		 RLCE_public_key_t pk, uint8_t cipher[], unsigned long long *clen);
+int RLCE_decrypt(uint8_t cipher[], unsigned long long clen, RLCE_private_key_t sk,
+		 uint8_t msg[], unsigned long long *mlen);
 
 /* GaloisField.h */
 
@@ -202,26 +202,26 @@ extern int GF_init_logexp_table(int m); /* 0 on success, -1 on failure */
 extern field_t GF_tablediv(field_t x, field_t y, int m);
 extern int GF_init_mult_table(int m);
 void GF_expvec(field_t vec[], int size, int m);
-void GF_vec_winograd(field_t x, field_t vec[],matrix_t B,matrix_t tmp, unsigned int m);
-void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m);
-void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m);
-void GF_mulexpvec2(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m);
-void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, unsigned int m);
+void GF_vec_winograd(field_t x, field_t vec[],matrix_t B,matrix_t tmp, size_t m);
+void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, size_t m);
+void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, size_t m);
+void GF_mulexpvec2(field_t x, field_t vec[], field_t dest[],int dsize, size_t m);
+void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, size_t m);
 void GF_vecinverse(field_t vec1[], field_t vec2[], int vecsize, int m);
-extern int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], unsigned int vecSize);
-int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], unsigned int vecSize);
-void GF_divvec(field_t vec1[],field_t vec2[], int vsize, unsigned int m);
+extern int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], size_t vecSize);
+int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], size_t vecSize);
+void GF_divvec(field_t vec1[],field_t vec2[], int vsize, size_t m);
 int GF_vecreversemul(field_t vec1[],field_t vec2[],int vsize,int m);
 void GF_evalpoly(int log, poly_t p, field_t input[], field_t output[], int size, int m);
 void GF_rsgenerator2optG(matrix_t optG, poly_t generator, field_t randE[], int m);
-void GF_vecvecmul(field_t v1[], field_t v2[], field_t v3[], int vsize, unsigned int m);
+void GF_vecvecmul(field_t v1[], field_t v2[], field_t v3[], int vsize, size_t m);
 void getGenPoly (int deg, poly_t g, int m);
 void rootsLocation(field_t rts[],int nRts,field_t eLoc[],field_t rtLog[],int m);
 void GF_mulAinv(field_t cp[], matrixA_t A, field_t C1[], int m);
 void GF_x2px(field_t vec[], field_t dest[], int size, int m);
 extern field_t GF_fexp(field_t x, int y, int m);
 extern void GF_print_log(int m);
-void printArray(unsigned char toBeprint[], int len);
+void printArray(uint8_t toBeprint[], int len);
 field_t GF_mul(field_t x, field_t y, int m);
 
 #define GF_exp(x,m) GFexpTable[m][x]
@@ -233,7 +233,7 @@ field_t GF_mul(field_t x, field_t y, int m);
 //#define GF_mul(x,y,m) ((GFMULTAB)?GF_tablemul(x,y,m):GF_regmul(x,y,m))
 
 
-poly_t poly_init(unsigned int size);
+poly_t poly_init(size_t size);
 void poly_clear(poly_t p);
 void poly_zero(poly_t p);
 void poly_copy(poly_t p, poly_t dest);
@@ -277,38 +277,38 @@ int matrix_inv(matrix_t G, matrix_t Ginv, int m);
 int matrix_echelon(matrix_t G, int m);
 matrix_t matrix_join(matrix_t G, matrix_t R);
 int matrixA_copy(matrixA_t mat, matrixA_t dest);
-int RLCE_MGF512(unsigned char mgfseed[], int mgfseedLen,
-		unsigned char mask[], int maskLen);
-int RLCE_MGF(unsigned char mgfseed[], int mgfseedLen,
-	     unsigned char mask[], int maskLen, int shatype);
+int RLCE_MGF512(uint8_t mgfseed[], int mgfseedLen,
+		uint8_t mask[], int maskLen);
+int RLCE_MGF(uint8_t mgfseed[], int mgfseedLen,
+	     uint8_t mask[], int maskLen, int shatype);
   
 vector_t vec_init(int n);
 void vector_free(vector_t v);
 vector_t permu_inv(vector_t p);
 int getRandomMatrix(matrix_t mat, field_t randE[]);
-vector_t getPermutation(int size, int t, unsigned char randBytes[]);
-int randomBytes2FE(unsigned char randomBytes[], int nRB,
+vector_t getPermutation(int size, int t, uint8_t randBytes[]);
+int randomBytes2FE(uint8_t randomBytes[], int nRB,
 		   field_t output[], int outputSize, int m);
-int getShortIntegers(unsigned char randomBytes[],
+int getShortIntegers(uint8_t randomBytes[],
 		     unsigned short output[], int outputSize);
 int getMatrixAandAinv(matrixA_t mat, matrixA_t matInv,
 			    field_t randomElements[], int randElen,int m);
-int getRandomBytes(unsigned char seed[], int seedSize,
-		   unsigned char pers[], int persSize,
-		   unsigned char output[], int outputSize,
+int getRandomBytes(uint8_t seed[], int seedSize,
+		   uint8_t pers[], int persSize,
+		   uint8_t output[], int outputSize,
 		   int shatype);
 
-void I2BS (unsigned int X, unsigned char S[], int slen);
-int BS2I (unsigned char S[], int slen);
-int B2FE9 (unsigned char bytes[], unsigned int BLen, vector_t FE);
-int FE2B9 (vector_t FE, unsigned char bytes[], unsigned int BLen);
-int B2FE10 (unsigned char bytes[], unsigned int BLen, vector_t FE);
-int FE2B10 (vector_t FE, unsigned char bytes[], unsigned int BLen);
-int B2FE11 (unsigned char bytes[], unsigned int BLen, vector_t FE);
-int FE2B11 (vector_t FE, unsigned char bytes[], unsigned int BLen);
-int B2FE12 (unsigned char bytes[], unsigned int BLen, vector_t FE);
-int FE2B12 (vector_t FE, unsigned char bytes[], unsigned int BLen);
-void hashTObytes(unsigned char bytes[], int bSize, unsigned int hash[]);
+void I2BS (size_t X, uint8_t S[], int slen);
+int BS2I (uint8_t S[], int slen);
+int B2FE9 (uint8_t bytes[], size_t BLen, vector_t FE);
+int FE2B9 (vector_t FE, uint8_t bytes[], size_t BLen);
+int B2FE10 (uint8_t bytes[], size_t BLen, vector_t FE);
+int FE2B10 (vector_t FE, uint8_t bytes[], size_t BLen);
+int B2FE11 (uint8_t bytes[], size_t BLen, vector_t FE);
+int FE2B11 (vector_t FE, uint8_t bytes[], size_t BLen);
+int B2FE12 (uint8_t bytes[], size_t BLen, vector_t FE);
+int FE2B12 (vector_t FE, uint8_t bytes[], size_t BLen);
+void hashTObytes(uint8_t bytes[], int bSize, size_t hash[]);
 
 void getPK(RLCE_private_key_t sk, RLCE_public_key_t pk);
 int rlce_keypair(int crypto_scheme, char* keyfilename);

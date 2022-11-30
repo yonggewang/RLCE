@@ -53,11 +53,11 @@ unsigned long long binomial(unsigned long long n, unsigned long long k) {
   return n * binomial(n-1,k-1) / k;
 }
 
-int binomialMOD2(unsigned int n, unsigned int k) {
+int binomialMOD2(size_t n, size_t k) {
   /* https://en.wikipedia.org/wiki/Lucas%27s_theorem */
   if (k>n) return 0;
   int len=0, i;
-  unsigned int tmp=1;
+  size_t tmp=1;
   while (n>tmp){
     tmp =(tmp<<1);
     len++;
@@ -161,7 +161,7 @@ void bipoly_print(bipoly_t p){
 int verifyZeroOrder( bipoly_t  Q, int n, int omega, field_t alpha[], field_t beta[], int m) {
   field_t delta;
   int yes=0;
-  unsigned int tmp;
+  size_t tmp;
   int i,r,s,u,v, alphalog, betalog;
   for (i=0; i<n; i++) {
     alphalog=GF_log(alpha[i],m);
@@ -195,7 +195,7 @@ int verifyZeroOrder( bipoly_t  Q, int n, int omega, field_t alpha[], field_t bet
 int verifyZeroOrderOne( bipoly_t  Q, int omega, field_t alpha, field_t beta, int m) {
   field_t delta;
   int yes=0;
-  unsigned int tmp;
+  size_t tmp;
   int r,s,u,v, alphalog, betalog;
   alphalog=GF_log(alpha,m);
   for (r=0; r<omega; r++) {
@@ -237,10 +237,10 @@ bipoly_t koetterInterpolation(int n, int k, int omega, int Lomega, field_t alpha
     g[j]->Ly=j;
   }
   field_t delta[Lomega+1], deltaxj0;
-  unsigned int tmp;
+  size_t tmp;
   int alphalog, j0;
   int betalog=0;
-  unsigned int deltaj0log, deltajlog, deltaxj0log;
+  size_t deltaj0log, deltajlog, deltaxj0log;
   int ubound;
   for (i=0; i<n; i++) {
     alphalog=GF_log(alpha[i],m);
@@ -402,7 +402,7 @@ static bipoly_t xxyPalpha(bipoly_t Q, field_t alpha, int m) {
   /* returns Q(x, xy+alpha) */
   bipoly_t newQ=NULL;
   if (alpha==0) return NULL;
-  unsigned int tmp;
+  size_t tmp;
   int alphalog=GF_log(alpha,m);
   newQ=bipoly_init(1+Q->maxY, 1+(Q->maxY)+(Q->maxX),Q->k);
   int r,s,j;

@@ -106,7 +106,7 @@ void matrix_print(matrix_t X) {
   }
 }
 
-int matrix_vec_mat_mul_winograd(field_t V[], matrix_t B, field_t dest[], int dsize, unsigned int m) {
+int matrix_vec_mat_mul_winograd(field_t V[], matrix_t B, field_t dest[], int dsize, size_t m) {
   int i,j;
   field_t x=0;
   field_t *desttmp;
@@ -137,7 +137,7 @@ int matrix_mul_winograd(matrix_t A, matrix_t B, matrix_t dest,int m){
   return 0;
 }
 
-int matrix_vec_mat_mul_standard(field_t V[], int vsize, matrix_t B, field_t dest[], int dsize, unsigned int m) {
+int matrix_vec_mat_mul_standard(field_t V[], int vsize, matrix_t B, field_t dest[], int dsize, size_t m) {
   if ((vsize>B->numR)||(B->numC<dsize)) return VECMATRIXMULERROR;
   int i;
   field_t *X;
@@ -339,7 +339,7 @@ int getRandomMatrix(matrix_t mat, field_t randE[]) {
   return 0;
 }
 
-vector_t getPermutation(int persize, int t, unsigned char randBytes[]) {
+vector_t getPermutation(int persize, int t, uint8_t randBytes[]) {
   /* this implements Fisher–Yates shuffle 
      in Knuth "Algorithm P" of The Art of Computer Programming */
   /* if t=persize, return a permutation of 0,...,persize-1. otherwise
@@ -364,7 +364,7 @@ vector_t getPermutation(int persize, int t, unsigned char randBytes[]) {
   return permutation;  
 }
 
-int randomBytes2FE(unsigned char randomBytes[], int nRB,
+int randomBytes2FE(uint8_t randomBytes[], int nRB,
 		   field_t output[], int outputSize, int m) {
   vector_t Vec;
   Vec =vec_init(outputSize);
@@ -398,7 +398,7 @@ int randomBytes2FE(unsigned char randomBytes[], int nRB,
   return 0; 	 
 }
 
-int getShortIntegers(unsigned char randB[], unsigned short output[], int outputSize) {
+int getShortIntegers(uint8_t randB[], unsigned short output[], int outputSize) {
   int i;
   for (i=0; i<outputSize; i++) {
     output[i]=randB[2*i];
@@ -408,15 +408,15 @@ int getShortIntegers(unsigned char randB[], unsigned short output[], int outputS
   return 0; 	 
 }
 
-int getRandomBytes(unsigned char seed[], int seedSize,
-		   unsigned char pers[], int persSize,
-		   unsigned char output[], int outputlen,int cryptotype) {
+int getRandomBytes(uint8_t seed[], int seedSize,
+		   uint8_t pers[], int persSize,
+		   uint8_t output[], int outputlen,int cryptotype) {
   int ret=0;
   if (cryptotype <3) {
     hash_drbg_state_t drbgState;
     drbgState=drbgstate_init(cryptotype);
-    unsigned char nonce[8]={0xff, 0xf1, 0xc6, 0x64, 0x5f, 0x19, 0x23, 0x1f};
-    unsigned char add[1];
+    uint8_t nonce[8]={0xff, 0xf1, 0xc6, 0x64, 0x5f, 0x19, 0x23, 0x1f};
+    uint8_t add[1];
     drbg_Input_t drbgInput;  
     drbgInput=drbgInput_init(seed,seedSize,nonce, 8, pers,persSize,add, 0);
     ret= hash_DRBG(drbgState, drbgInput, output, outputlen);
@@ -425,10 +425,10 @@ int getRandomBytes(unsigned char seed[], int seedSize,
   } else {
     ctr_drbg_state_t drbgState;
     drbgState=ctr_drbgstate_init(cryptotype);
-    unsigned char nonce[1];
-    unsigned char add[1];
+    uint8_t nonce[1];
+    uint8_t add[1];
     drbg_Input_t drbgInput;
-    unsigned char newseed[drbgState->seedlen];
+    uint8_t newseed[drbgState->seedlen];
     memset(newseed, 0, drbgState->seedlen);
     int seedlen = seedSize;
     if (seedlen > drbgState->seedlen) seedlen = drbgState->seedlen;
@@ -441,21 +441,21 @@ int getRandomBytes(unsigned char seed[], int seedSize,
   return ret;  
 }
 
-void I2BS (unsigned int X, unsigned char S[], int slen) {
+void I2BS (size_t X, uint8_t S[], int slen) {
   int i;
   for (i=slen-1; i>=0; i--) S[i]=(0xFF & (X>>((slen-1-i)*8)));
 }
 
-int BS2I (unsigned char S[], int slen) {
-  unsigned int X=0;
+int BS2I (uint8_t S[], int slen) {
+  size_t X=0;
   int i;
   for (i=0; i<slen; i++) X=(X<<8)^S[i];
   return X;
 }
 
-int RLCE_MGF512(unsigned char mgfseed[], int mgfseedLen,
-	     unsigned char mask[], int maskLen) {
-  unsigned char seed[mgfseedLen+4];  
+int RLCE_MGF512(uint8_t mgfseed[], int mgfseedLen,
+	     uint8_t mask[], int maskLen) {
+  uint8_t seed[mgfseedLen+4];  
   memcpy(seed, mgfseed, mgfseedLen);
   int i,j,m,r;
   unsigned long hash512[8];
@@ -474,12 +474,12 @@ int RLCE_MGF512(unsigned char mgfseed[], int mgfseedLen,
   return 0;  
 }
 
-int RLCE_MGF(unsigned char mgfseed[], int mgfseedLen,
-	     unsigned char mask[], int maskLen, int shatype) {
-  unsigned char seed[mgfseedLen+4];  
+int RLCE_MGF(uint8_t mgfseed[], int mgfseedLen,
+	     uint8_t mask[], int maskLen, int shatype) {
+  uint8_t seed[mgfseedLen+4];  
   memcpy(seed, mgfseed, mgfseedLen);
   int hashSize=0; /* hashLen = 4*hashSize */
-  void (*sha)(unsigned char[], int, unsigned int[]);
+  void (*sha)(uint8_t[], int, size_t[]);
 
   if (shatype ==0) {
     hashSize = 5;
@@ -492,7 +492,7 @@ int RLCE_MGF(unsigned char mgfseed[], int mgfseedLen,
   } else {
     return SHATYPENOTSUPPORTED;
   }
-  unsigned int hash[hashSize];
+  size_t hash[hashSize];
   int i,j, m,r;
   if  ((shatype==0) || (shatype==1)) {
     m=maskLen/(4*hashSize);
@@ -525,16 +525,16 @@ int RLCE_MGF(unsigned char mgfseed[], int mgfseedLen,
   return 0;  
 }
 
-int B2FE9 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
-  unsigned int vecLen =FE->size;
+int B2FE9 (uint8_t bytes[], size_t BLen, vector_t FE) {
+  size_t vecLen =FE->size;
   if (9*vecLen>8*BLen) {
     return BYTEVECTORTOOSMALL;
   }
   int j=0;
-  unsigned int i;
+  size_t i;
   int used = 0;
 
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
   for (i=0; i<vecLen; i++) {
 
     switch (used) {
@@ -617,16 +617,16 @@ int B2FE9 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
   return 0;
 }
 
-int FE2B9 (vector_t FE,  unsigned char bytes[], unsigned int BLen) {
-  unsigned int vecLen =FE->size;
+int FE2B9 (vector_t FE,  uint8_t bytes[], size_t BLen) {
+  size_t vecLen =FE->size;
   if ((8*BLen) < (vecLen*9)) {
     return BYTEVECTORTOOSMALL;
   }
   int used = 0;
   int j=0;
-  unsigned int i;
+  size_t i;
   bytes[j]=0x00;
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
   for (i=0;i<vecLen;i++){
     switch (used) {
     case 0:
@@ -693,16 +693,16 @@ int FE2B9 (vector_t FE,  unsigned char bytes[], unsigned int BLen) {
   return 0;  
 }
 
-int B2FE10 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
-  unsigned int vecLen =FE->size;  
+int B2FE10 (uint8_t bytes[], size_t BLen, vector_t FE) {
+  size_t vecLen =FE->size;  
   if (10*vecLen>8*BLen) {
     return BYTEVECTORTOOSMALL;
   }
   int j=0;
-  unsigned int i;
+  size_t i;
   int used = 0;
 
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
   for (i=0; i<vecLen; i++) {
 
     switch (used) {
@@ -749,16 +749,16 @@ int B2FE10 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
   return 0;
 }
 
-int FE2B10 (vector_t FE, unsigned char bytes[], unsigned int BLen) {
-  unsigned int vecLen =FE->size;
+int FE2B10 (vector_t FE, uint8_t bytes[], size_t BLen) {
+  size_t vecLen =FE->size;
   if ((8*BLen) < (vecLen *10)) {
     return BYTEVECTORTOOSMALL;
   }
   int used = 0;
   int j=0;
-  unsigned int i;
+  size_t i;
   bytes[j]=0x00;
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
 
   for (i=0;i<vecLen;i++){
     switch (used) {
@@ -801,16 +801,16 @@ int FE2B10 (vector_t FE, unsigned char bytes[], unsigned int BLen) {
 
 
 
-int B2FE11 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
-  unsigned int vecLen =FE->size;  
+int B2FE11 (uint8_t bytes[], size_t BLen, vector_t FE) {
+  size_t vecLen =FE->size;  
   if (11*vecLen>8*BLen) {
     return BYTEVECTORTOOSMALL;
   }
   int j=0;
-  unsigned int i;
+  size_t i;
   int used = 0;
 
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
   for (i=0; i<vecLen; i++) {
 
     switch (used) {
@@ -901,16 +901,16 @@ int B2FE11 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
   return 0;
 }
 
-int FE2B11 (vector_t FE, unsigned char bytes[], unsigned int BLen) {
-  unsigned int vecLen =FE->size;
+int FE2B11 (vector_t FE, uint8_t bytes[], size_t BLen) {
+  size_t vecLen =FE->size;
   if ((8*BLen) < (vecLen *11)) {
     return BYTEVECTORTOOSMALL;
   }
   int used = 0;
   int j=0;
-  unsigned int i;
+  size_t i;
   bytes[j]=0x00;
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
 
   for (i=0;i<vecLen;i++){
     switch (used) {
@@ -981,16 +981,16 @@ int FE2B11 (vector_t FE, unsigned char bytes[], unsigned int BLen) {
   return 0;  
 }
 
-int B2FE12 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
-  unsigned int vecLen =FE->size;
+int B2FE12 (uint8_t bytes[], size_t BLen, vector_t FE) {
+  size_t vecLen =FE->size;
   if (12*vecLen>8*BLen) {
     return BYTEVECTORTOOSMALL;
   }
   int j=0;
-  unsigned int i;
+  size_t i;
   int used = 0;
 
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
   for (i=0; i<vecLen; i++) {
 
     switch (used) {
@@ -1018,16 +1018,16 @@ int B2FE12 (unsigned char bytes[], unsigned int BLen, vector_t FE) {
   return 0;
 }
 
-int FE2B12 (vector_t FE, unsigned char bytes[], unsigned int BLen) {
-  unsigned int vecLen =FE->size;
+int FE2B12 (vector_t FE, uint8_t bytes[], size_t BLen) {
+  size_t vecLen =FE->size;
   if ((8*BLen) < (vecLen *12)) {
     return BYTEVECTORTOOSMALL;
   }
   int used = 0;
   int j=0;
-  unsigned int i;
+  size_t i;
   bytes[j]=0x00;
-  unsigned char bits = 0x00;
+  uint8_t bits = 0x00;
 
   for (i=0;i<vecLen;i++){
     switch (used) {

@@ -106,12 +106,12 @@ int GF_init_div_table(int m) {
 
 field_t GF_add(field_t x, field_t y) {return x^y;}
 
-int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], unsigned int vecSize){
-  unsigned int i;
+int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], size_t vecSize){
+  size_t i;
   int longsize;
   longsize = sizeof(unsigned long long);
   if (vec3==NULL) vec3=vec2;
-  unsigned int size=(sizeof(field_t)*vecSize)/longsize;
+  size_t size=(sizeof(field_t)*vecSize)/longsize;
   unsigned long long* longvec1=(unsigned long long*) vec1;
   unsigned long long* longvec2=(unsigned long long*) vec2;
   unsigned long long* longvec3=(unsigned long long*) vec3;
@@ -121,14 +121,14 @@ int GF_addvec(field_t vec1[], field_t vec2[],field_t vec3[], unsigned int vecSiz
   return 0;
 }
 
-int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], unsigned int vecSize){
+int GF_addF2vec(field_t x, field_t vec2[],field_t vec3[], size_t vecSize){
   int longsize;
-  unsigned int i;
+  size_t i;
   longsize = sizeof(unsigned long long);
   field_t vec1[longsize/sizeof(field_t)];
   for (i=0;i<longsize/sizeof(field_t); i++) vec1[i]=x;
   if (vec3==NULL) vec3=vec2;
-  unsigned int size=(sizeof(field_t)*vecSize)/longsize;
+  size_t size=(sizeof(field_t)*vecSize)/longsize;
   unsigned long long* longvec1=(unsigned long long*) vec1;
   unsigned long long* longvec2=(unsigned long long*) vec2;
   unsigned long long* longvec3=(unsigned long long*) vec3;
@@ -160,7 +160,7 @@ void GF_vecinverse(field_t vec1[], field_t vec2[], int vecsize, int m) {
   return;
 }
 
-void GF_vec_winograd(field_t x,field_t V[],matrix_t B,matrix_t tmp,unsigned int m) {
+void GF_vec_winograd(field_t x,field_t V[],matrix_t B,matrix_t tmp,size_t m) {
   int i,j;
   field_t z1, z2;
   if (GFMULTAB==1) {
@@ -191,7 +191,7 @@ void GF_vec_winograd(field_t x,field_t V[],matrix_t B,matrix_t tmp,unsigned int 
   return;
 }
 
-void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m) {
+void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, size_t m) {
   /* multiply each element in a range of memory by x  */
   int i;
   if (dest==NULL) dest=vec;
@@ -200,7 +200,7 @@ void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int 
     for (i=0; i<dsize; i++) dest[i]=GFmulTable[m][x][vec[i]];
     return;
   } 
-  unsigned int xlog, tmp;
+  size_t xlog, tmp;
   GF_init_logexp_table(m);
   if (x == field_zero()) {
     memset(vec, 0, dsize*sizeof(field_t));
@@ -218,7 +218,7 @@ void GF_mulvec(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int 
   return;
 }
 
-void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m) {
+void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, size_t m) {
   /* dest[i]= vec[i]/x */
   int i;
   if (dest==NULL) dest=vec;
@@ -246,7 +246,7 @@ void GF_vecdiv(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int 
   return;
 }
 
-void GF_divvec(field_t vec1[],field_t vec2[], int vsize, unsigned int m) {
+void GF_divvec(field_t vec1[],field_t vec2[], int vsize, size_t m) {
   /* return vec1[i]=vec1[i]/vec2[i] */
   int i;
   if (GFMULTAB==1) {
@@ -338,7 +338,7 @@ void GF_expvec(field_t vec[], int size, int m) {
   for (i=0;i<size;i++) vec[i]=GFexpTable[m][vec[i]];
 }
 
-void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, unsigned int m) {
+void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, size_t m) {
   /* multiply each element in a range of memory by \alpha^xlog  */
   int i;
   field_t x;
@@ -348,7 +348,7 @@ void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, unsigned in
      for (i=0; i<dsize; i++) dest[i]=GFmulTable[m][x][vec[i]];
      return;
   }
-  unsigned int  tmp;
+  size_t  tmp;
   GF_init_logexp_table(m);
   memset(dest,0,dsize*sizeof(field_t));
   for (i=0; i<dsize; i++) {
@@ -360,7 +360,7 @@ void GF_logmulvec(int xlog, field_t vec[], field_t dest[],int dsize, unsigned in
   return;
 }
 
-void GF_vecvecmul(field_t v1[], field_t v2[], field_t v3[], int vsize, unsigned int m)  {
+void GF_vecvecmul(field_t v1[], field_t v2[], field_t v3[], int vsize, size_t m)  {
   int i;
   if (v3==NULL) v3=v2;
   if (GFMULTAB==1) {
@@ -376,9 +376,9 @@ void GF_vecvecmul(field_t v1[], field_t v2[], field_t v3[], int vsize, unsigned 
   }
 }
 
-void GF_mulexpvec2(field_t x, field_t vec[], field_t dest[],int dsize, unsigned int m) {
+void GF_mulexpvec2(field_t x, field_t vec[], field_t dest[],int dsize, size_t m) {
   /* multiply vec[i] by x^i  */
-  unsigned int xlog, tmp;
+  size_t xlog, tmp;
   int i;
   GF_init_logexp_table(m);
   memset(dest, 0, dsize*sizeof(field_t));
@@ -598,7 +598,7 @@ void GF_print_log (int m) {
   printf("\n");
 }
 
-void printArray(unsigned char toBeprint[], int len) {
+void printArray(uint8_t toBeprint[], int len) {
   int i = 0;
   for (i=0; i<len; i++) {
     printf("%02x", toBeprint[i]);

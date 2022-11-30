@@ -16,7 +16,7 @@
 #include "rlce.h"
 #define TABLE4MIXCOLUMN 1
 
-static const unsigned char sbox[256] ={
+static const uint8_t sbox[256] ={
   0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
   0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
   0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
@@ -35,7 +35,7 @@ static const unsigned char sbox[256] ={
   0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16
 };
 
-static const unsigned char Invsbox[256] ={
+static const uint8_t Invsbox[256] ={
   0x52,0x09,0x6a,0xd5,0x30,0x36,0xa5,0x38,0xbf,0x40,0xa3,0x9e,0x81,0xf3,0xd7,0xfb,
   0x7c,0xe3,0x39,0x82,0x9b,0x2f,0xff,0x87,0x34,0x8e,0x43,0x44,0xc4,0xde,0xe9,0xcb,
   0x54,0x7b,0x94,0x32,0xa6,0xc2,0x23,0x3d,0xee,0x4c,0x95,0x0b,0x42,0xfa,0xc3,0x4e,
@@ -55,7 +55,7 @@ static const unsigned char Invsbox[256] ={
 };
 
 
-static const unsigned char times2[256] ={
+static const uint8_t times2[256] ={
   0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,
   0x20,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x30,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e,
   0x40,0x42,0x44,0x46,0x48,0x4a,0x4c,0x4e,0x50,0x52,0x54,0x56,0x58,0x5a,0x5c,0x5e,
@@ -74,7 +74,7 @@ static const unsigned char times2[256] ={
   0xfb,0xf9,0xff,0xfd,0xf3,0xf1,0xf7,0xf5,0xeb,0xe9,0xef,0xed,0xe3,0xe1,0xe7,0xe5
 };
 
-static const unsigned char times3[256] ={
+static const uint8_t times3[256] ={
   0x00,0x03,0x06,0x05,0x0c,0x0f,0x0a,0x09,0x18,0x1b,0x1e,0x1d,0x14,0x17,0x12,0x11,
   0x30,0x33,0x36,0x35,0x3c,0x3f,0x3a,0x39,0x28,0x2b,0x2e,0x2d,0x24,0x27,0x22,0x21,
   0x60,0x63,0x66,0x65,0x6c,0x6f,0x6a,0x69,0x78,0x7b,0x7e,0x7d,0x74,0x77,0x72,0x71,
@@ -93,7 +93,7 @@ static const unsigned char times3[256] ={
   0x0b,0x08,0x0d,0x0e,0x07,0x04,0x01,0x02,0x13,0x10,0x15,0x16,0x1f,0x1c,0x19,0x1a
 };
 
-static const unsigned char Rcon[11] = {0x8d,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36};
+static const uint8_t Rcon[11] = {0x8d,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36};
 
 aeskey_t aeskey_init(unsigned short kappa) {
   if ((kappa!=128)&&(kappa!=192)&&(kappa!=256)){
@@ -119,7 +119,7 @@ aeskey_t aeskey_init(unsigned short kappa) {
   default:
     return NULL;
   }
-  out->key = (unsigned char *) calloc(kappa/8, sizeof(unsigned char));
+  out->key = (uint8_t *) calloc(kappa/8, sizeof(uint8_t));
   return out;
 }
 
@@ -130,9 +130,9 @@ void aeskey_free(aeskey_t key) {
 }
 
 
-int KeyExpansion128(aeskey_t key, unsigned char w[]){
-  unsigned char temp[4];
-  memcpy(w, key->key, 16*sizeof(unsigned char)); 
+int KeyExpansion128(aeskey_t key, uint8_t w[]){
+  uint8_t temp[4];
+  memcpy(w, key->key, 16*sizeof(uint8_t)); 
   uint32_t *temp32 = (uint32_t *)temp;
   uint32_t *w32= (uint32_t *) w;
   temp[0]=sbox[w[13]]^Rcon[1];
@@ -218,9 +218,9 @@ int KeyExpansion128(aeskey_t key, unsigned char w[]){
   return 0;
 }
 
-int KeyExpansion192(aeskey_t key, unsigned char w[]){
-  unsigned char temp[4];
-  memcpy(w, key->key, 24*sizeof(unsigned char)); 
+int KeyExpansion192(aeskey_t key, uint8_t w[]){
+  uint8_t temp[4];
+  memcpy(w, key->key, 24*sizeof(uint8_t)); 
   uint32_t *temp32 = (uint32_t *)temp;
   uint32_t *w32= (uint32_t *) w;
 
@@ -305,9 +305,9 @@ int KeyExpansion192(aeskey_t key, unsigned char w[]){
   return 0;
 }
 
-int KeyExpansion256(aeskey_t key, unsigned char w[]){
-  unsigned char temp[4];
-  memcpy(w, key->key, 32*sizeof(unsigned char)); 
+int KeyExpansion256(aeskey_t key, uint8_t w[]){
+  uint8_t temp[4];
+  memcpy(w, key->key, 32*sizeof(uint8_t)); 
   uint32_t *temp32 = (uint32_t *)temp;
   uint32_t *w32= (uint32_t *) w;
 
@@ -419,13 +419,13 @@ int KeyExpansion256(aeskey_t key, unsigned char w[]){
   return 0;
 }
 
-int KeyExpansion(aeskey_t key, unsigned char w[]){
+int KeyExpansion(aeskey_t key, uint8_t w[]){
   int i;
-  unsigned char temp[4];
-  unsigned char tmp;
+  uint8_t temp[4];
+  uint8_t tmp;
   unsigned short Nk = key->Nk;
   unsigned short Nr= key->Nr;
-  memcpy(w, key->key, 4*Nk*sizeof(unsigned char));
+  memcpy(w, key->key, 4*Nk*sizeof(uint8_t));
   uint32_t *temp32 = (uint32_t *)temp;
   uint32_t *w32= (uint32_t *) w; 
   for (i=Nk; i<4*(Nr+1); i++){
@@ -448,10 +448,10 @@ int KeyExpansion(aeskey_t key, unsigned char w[]){
   return 0;
 }
 
-void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
+void AES_encrypt(uint8_t plain[], uint8_t cipher[], aeskey_t key) {
   int k;
-  unsigned char *w;
-  w=calloc(key->wLen, sizeof(unsigned char));
+  uint8_t *w;
+  w=calloc(key->wLen, sizeof(uint8_t));
   /* KeyExpansion(key, w);*/
   if ((key->Nk) ==4) {
     KeyExpansion128(key, w);
@@ -463,11 +463,11 @@ void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
     KeyExpansion(key, w);
   }
   uint64_t * rkey = (uint64_t *) w;
-  memcpy(cipher, plain, 16*sizeof(unsigned char));
+  memcpy(cipher, plain, 16*sizeof(uint8_t));
   uint64_t *state= (uint64_t *) cipher;
   state[0] ^= rkey[0];
   state[1] ^= rkey[1];
-  unsigned char a[16];
+  uint8_t a[16];
   for (k=1; k<key->Nr; k++) {
     a[0]=sbox[cipher[0]];
     a[1]=sbox[cipher[4]];
@@ -488,7 +488,7 @@ void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
     /*
     for (i=0; i<4; i++) {
       for(j=0;j<4;j++) {
-	b[j]= ((a[4*j+i]<<1) ^ (0x1B & (unsigned char)((signed char) a[4*j+i] >> 7)));
+	b[j]= ((a[4*j+i]<<1) ^ (0x1B & (uint8_t)((signed char) a[4*j+i] >> 7)));
       }
       cipher[4*i] = b[0] ^ a[12+i] ^ a[8+i] ^ b[1] ^ a[4+i];
       cipher[4*i+1] = b[1] ^ a[i] ^ a[12+i] ^ b[2] ^ a[8+i];
@@ -515,7 +515,7 @@ void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
     state[0] ^= rkey[2*k];
     state[1] ^= rkey[2*k+1];
   }
-  unsigned char tmp;
+  uint8_t tmp;
   cipher[0]=sbox[cipher[0]];
   cipher[4]=sbox[cipher[4]];
   cipher[8]=sbox[cipher[8]];
@@ -542,18 +542,18 @@ void AES_encrypt(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
   return;
 }
 
-void AES_encryptV1(unsigned char plain[], unsigned char cipher[], aeskey_t key) {
+void AES_encryptV1(uint8_t plain[], uint8_t cipher[], aeskey_t key) {
   int i,j,k;
-  unsigned char *w;
-  w=calloc(key->wLen, sizeof(unsigned char));
+  uint8_t *w;
+  w=calloc(key->wLen, sizeof(uint8_t));
   KeyExpansion(key, w);
   uint64_t * rkey = (uint64_t *) w;
-  memcpy(cipher, plain, 16*sizeof(unsigned char));
+  memcpy(cipher, plain, 16*sizeof(uint8_t));
   uint64_t *state= (uint64_t *) cipher;
   state[0] ^= rkey[0];
   state[1] ^= rkey[1];
-  unsigned char a[4][4];
-  unsigned char b[4];
+  uint8_t a[4][4];
+  uint8_t b[4];
   for (k=1; k<key->Nr; k++) {
     a[0][0]=sbox[cipher[0]];
     a[0][1]=sbox[cipher[4]];
@@ -574,7 +574,7 @@ void AES_encryptV1(unsigned char plain[], unsigned char cipher[], aeskey_t key) 
     if (TABLE4MIXCOLUMN ==0){
       for (i=0; i<4; i++) {
 	for(j=0;j<4;j++) {
-	  b[j]= ((a[j][i]<<1) ^ (0x1B & (unsigned char)((signed char) a[j][i] >> 7)));
+	  b[j]= ((a[j][i]<<1) ^ (0x1B & (uint8_t)((signed char) a[j][i] >> 7)));
 	}
 	cipher[4*i] = b[0] ^ a[3][i] ^ a[2][i] ^ b[1] ^ a[1][i];
 	cipher[4*i+1] = b[1] ^ a[0][i] ^ a[3][i] ^ b[2] ^ a[2][i];
@@ -592,7 +592,7 @@ void AES_encryptV1(unsigned char plain[], unsigned char cipher[], aeskey_t key) 
     state[0] ^= rkey[2*k];
     state[1] ^= rkey[2*k+1];
   }
-  unsigned char tmp;
+  uint8_t tmp;
   cipher[0]=sbox[cipher[0]];
   cipher[4]=sbox[cipher[4]];
   cipher[8]=sbox[cipher[8]];
@@ -619,8 +619,8 @@ void AES_encryptV1(unsigned char plain[], unsigned char cipher[], aeskey_t key) 
   return;
 }
 
-static void InvShiftRows(unsigned char plain[]) {
-  unsigned char tmp;
+static void InvShiftRows(uint8_t plain[]) {
+  uint8_t tmp;
   plain[0]=Invsbox[plain[0]];
   plain[4]=Invsbox[plain[4]];
   plain[8]=Invsbox[plain[8]];
@@ -646,11 +646,11 @@ static void InvShiftRows(unsigned char plain[]) {
   plain[15]=Invsbox[tmp];
 }
 
-static unsigned char f256times2(unsigned char a) {
-  return ((a<<1) ^ (0x1B & (unsigned char)((signed char) a >> 7)));
+static uint8_t f256times2(uint8_t a) {
+  return ((a<<1) ^ (0x1B & (uint8_t)((signed char) a >> 7)));
 }
 
-static unsigned char f256mul(unsigned char b, unsigned char a) {
+static uint8_t f256mul(uint8_t b, uint8_t a) {
   switch(b) {
   case 0x09:
     return f256times2(f256times2(f256times2(a))) ^ a;
@@ -665,11 +665,11 @@ static unsigned char f256mul(unsigned char b, unsigned char a) {
 }
 
 
-static void InvMixColumns(unsigned char plain[]) {
+static void InvMixColumns(uint8_t plain[]) {
   int i;
-  unsigned char a[4];    
+  uint8_t a[4];    
   for (i=0; i<4; i++) {
-    memcpy(a, plain+4*i, 4*sizeof(unsigned char));
+    memcpy(a, plain+4*i, 4*sizeof(uint8_t));
     plain[4*i]   = f256mul(0x0e,a[0])^f256mul(0x0b,a[1])^f256mul(0x0d,a[2])^f256mul(0x09,a[3]);
     plain[4*i+1] = f256mul(0x09,a[0])^f256mul(0x0e,a[1])^f256mul(0x0b,a[2])^f256mul(0x0d,a[3]); 
     plain[4*i+2] = f256mul(0x0d,a[0])^f256mul(0x09,a[1])^f256mul(0x0e,a[2])^f256mul(0x0b,a[3]);
@@ -678,10 +678,10 @@ static void InvMixColumns(unsigned char plain[]) {
 }
 
 
-void AES_decrypt(unsigned char cipher[], unsigned char plain[], aeskey_t key) {
+void AES_decrypt(uint8_t cipher[], uint8_t plain[], aeskey_t key) {
   int i;
-  unsigned char *w;
-  w=calloc(key->wLen, sizeof(unsigned char));
+  uint8_t *w;
+  w=calloc(key->wLen, sizeof(uint8_t));
   if ((key->Nk) ==4) {
     KeyExpansion128(key, w);
   } else if ((key->Nk) ==6) {
@@ -693,7 +693,7 @@ void AES_decrypt(unsigned char cipher[], unsigned char plain[], aeskey_t key) {
   }
   /* KeyExpansion(key, w);*/
   uint64_t * rkey = (uint64_t *) w;
-  memcpy(plain, cipher, 16*sizeof(unsigned char));
+  memcpy(plain, cipher, 16*sizeof(uint8_t));
   uint64_t *state= (uint64_t *) plain;
   state[0] ^= rkey[2*(key->Nr)];
   state[1] ^= rkey[2*(key->Nr)+1];

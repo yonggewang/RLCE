@@ -35,12 +35,12 @@
 #define Sigma5120(x) (ROTR512(x,28) ^ ROTR512(x,34) ^ ROTR512(x,39))
 #define Sigma5121(x) (ROTR512(x,14) ^ ROTR512(x,18) ^ ROTR512(x,41))
 
-void sha1_process(unsigned int[], unsigned char[]);
-void sha256_process(unsigned int[], unsigned char[]);
-void sha512_process(unsigned long [], unsigned char []);
+void sha1_process(size_t[], uint8_t[]);
+void sha256_process(size_t[], uint8_t[]);
+void sha512_process(unsigned long [], uint8_t []);
 
-void sha_msg_pad(unsigned char message[], int size, unsigned int bitlen,
-		 unsigned char paddedmsg[]) {
+void sha_msg_pad(uint8_t message[], int size, size_t bitlen,
+		 uint8_t paddedmsg[]) {
   int i;
   for (i=0; i<size; i++) {
     paddedmsg[i]=message[i];
@@ -56,7 +56,7 @@ void sha_msg_pad(unsigned char message[], int size, unsigned int bitlen,
   return;
 }
 
-void sha_msg_pad0(unsigned int bitlen, unsigned char paddedmsg[]) {
+void sha_msg_pad0(size_t bitlen, uint8_t paddedmsg[]) {
   int i;
   for (i=0; i<64; i++) {
     paddedmsg[i]=0x00;
@@ -68,8 +68,8 @@ void sha_msg_pad0(unsigned int bitlen, unsigned char paddedmsg[]) {
   return;
 }
 
-void sha1_md(unsigned char message[], int size, unsigned int hash[5]) {
-  unsigned int bitlen = 8*size;
+void sha1_md(uint8_t message[], int size, size_t hash[5]) {
+  size_t bitlen = 8*size;
   hash[0] = 0x67452301;
   hash[1] = 0xEFCDAB89;
   hash[2] = 0x98BADCFE;
@@ -77,20 +77,20 @@ void sha1_md(unsigned char message[], int size, unsigned int hash[5]) {
   hash[4] = 0xC3D2E1F0;
   int i;
 
-  unsigned char msgTBH[64]; /* 64 BYTE msg to be hashed */
-  unsigned char paddedMessage[64]; /* last msg block to be hashed*/
+  uint8_t msgTBH[64]; /* 64 BYTE msg to be hashed */
+  uint8_t paddedMessage[64]; /* last msg block to be hashed*/
 
   int Q= size/64;
   int R= size%64;
-  unsigned char msg[R];
-  memcpy(msg, &message[64*Q], R * sizeof(unsigned char));
+  uint8_t msg[R];
+  memcpy(msg, &message[64*Q], R * sizeof(uint8_t));
   
   for (i=0; i<Q; i++) {
-    memcpy(msgTBH, &message[64*i], 64 * sizeof(unsigned char));
+    memcpy(msgTBH, &message[64*i], 64 * sizeof(uint8_t));
     sha1_process(hash, msgTBH);
   }
   if (R>55) {
-    memcpy(msgTBH, msg, R * sizeof(unsigned char));
+    memcpy(msgTBH, msg, R * sizeof(uint8_t));
     msgTBH[R]=0x80;
     for (i=R+1; i<64; i++) {
       msgTBH[i]=0x00;
@@ -104,10 +104,10 @@ void sha1_md(unsigned char message[], int size, unsigned int hash[5]) {
   return;
 }
 
-void sha1_process(unsigned int hash[], unsigned char msg[]) {
-  const unsigned int K[4] = {0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6};
-  unsigned int W[80];
-  unsigned int A, B, C, D, E, T;
+void sha1_process(size_t hash[], uint8_t msg[]) {
+  const size_t K[4] = {0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6};
+  size_t W[80];
+  size_t A, B, C, D, E, T;
   int i;
   for(i = 0; i < 16; i++) {
     W[i] = (((unsigned) msg[i * 4]) << 24) +
@@ -168,8 +168,8 @@ void sha1_process(unsigned int hash[], unsigned char msg[]) {
   return;
 }
 
-void sha256_md(unsigned char message[], int size, unsigned int hash[8]) {
-  unsigned int bitlen = 8*size;
+void sha256_md(uint8_t message[], int size, size_t hash[8]) {
+  size_t bitlen = 8*size;
   hash[0] = 0x6A09E667;  
   hash[1] = 0xBB67AE85;
   hash[2] = 0x3C6EF372;  
@@ -179,20 +179,20 @@ void sha256_md(unsigned char message[], int size, unsigned int hash[8]) {
   hash[6] = 0x1F83D9AB;
   hash[7] = 0x5BE0CD19;
   
-  unsigned char msgTBH[64]; /* 64 BYTE msg to be hashed */
-  unsigned char paddedMessage[64]; /* last msg block to be hashed*/
+  uint8_t msgTBH[64]; /* 64 BYTE msg to be hashed */
+  uint8_t paddedMessage[64]; /* last msg block to be hashed*/
   int i;
   int Q= size/64;
   int R= size%64;
-  unsigned char msg[R];
-  memcpy(msg, &message[64*Q], R * sizeof(unsigned char));
+  uint8_t msg[R];
+  memcpy(msg, &message[64*Q], R * sizeof(uint8_t));
   
   for (i=0; i<Q; i++) {
-    memcpy(msgTBH, &message[64*i], 64 * sizeof(unsigned char));
+    memcpy(msgTBH, &message[64*i], 64 * sizeof(uint8_t));
     sha256_process(hash, msgTBH);
   }
   if (R>55) {
-    memcpy(msgTBH, msg, R * sizeof(unsigned char));
+    memcpy(msgTBH, msg, R * sizeof(uint8_t));
     msgTBH[R]=0x80;
     for (i=R+1; i<64; i++) {
       msgTBH[i]=0x00;
@@ -207,8 +207,8 @@ void sha256_md(unsigned char message[], int size, unsigned int hash[8]) {
   return;
 }
 
-void sha256_process(unsigned int hash[], unsigned char msg[]) {
-  const unsigned int K[64] = {
+void sha256_process(size_t hash[], uint8_t msg[]) {
+  const size_t K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,
     0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,
     0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,
@@ -220,9 +220,9 @@ void sha256_process(unsigned int hash[], unsigned char msg[]) {
     0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,
     0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,
     0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2};
-  unsigned int W[64];
+  size_t W[64];
   int i;
-  unsigned int A, B, C, D, E, F, G, H, T1, T2;
+  size_t A, B, C, D, E, F, G, H, T1, T2;
   for(i = 0; i < 16; i++) {
     W[i] = (((unsigned) msg[i * 4]) << 24) |
       (((unsigned) msg[i * 4 + 1]) << 16) |
@@ -266,7 +266,7 @@ void sha256_process(unsigned int hash[], unsigned char msg[]) {
 }
 
 
-void sha512_msg_pad(unsigned char message[], int size, unsigned int bitlen, unsigned char paddedmsg[]) {
+void sha512_msg_pad(uint8_t message[], int size, size_t bitlen, uint8_t paddedmsg[]) {
   int i;
   for (i=0; i<size; i++) {
     paddedmsg[i]=message[i];
@@ -282,7 +282,7 @@ void sha512_msg_pad(unsigned char message[], int size, unsigned int bitlen, unsi
   return;
 }
 
-void sha512_msg_pad0(unsigned int bitlen, unsigned char paddedmsg[]) {
+void sha512_msg_pad0(size_t bitlen, uint8_t paddedmsg[]) {
   int i;
   for (i=0; i<128; i++) {
     paddedmsg[i]=0x00;
@@ -295,8 +295,8 @@ void sha512_msg_pad0(unsigned int bitlen, unsigned char paddedmsg[]) {
 }
 
 
-void sha512_md(unsigned char message[], int size, unsigned long hash[8]) {
-  unsigned int bitlen = 8*size;
+void sha512_md(uint8_t message[], int size, unsigned long hash[8]) {
+  size_t bitlen = 8*size;
   hash[0] = 0x6a09e667f3bcc908;
   hash[1] = 0xbb67ae8584caa73b;
   hash[2] = 0x3c6ef372fe94f82b;
@@ -306,20 +306,20 @@ void sha512_md(unsigned char message[], int size, unsigned long hash[8]) {
   hash[6] = 0x1f83d9abfb41bd6b;
   hash[7] = 0x5be0cd19137e2179;
   
-  unsigned char msgTBH[128]; /* 128 BYTE msg to be hashed */
-  unsigned char paddedMessage[128]; /* last msg block to be hashed*/
+  uint8_t msgTBH[128]; /* 128 BYTE msg to be hashed */
+  uint8_t paddedMessage[128]; /* last msg block to be hashed*/
   
   int Q= size/128;
   int R= size%128;
-  unsigned char msg[R];
-  memcpy(msg, &message[128*Q], R * sizeof(unsigned char));
+  uint8_t msg[R];
+  memcpy(msg, &message[128*Q], R * sizeof(uint8_t));
   int i;
   for (i=0; i<Q; i++) {
-    memcpy(msgTBH, &message[128*i], 128 * sizeof(unsigned char));
+    memcpy(msgTBH, &message[128*i], 128 * sizeof(uint8_t));
     sha512_process(hash, msgTBH);
   }
   if (R>111) {
-    memcpy(msgTBH, msg, R * sizeof(unsigned char));
+    memcpy(msgTBH, msg, R * sizeof(uint8_t));
     msgTBH[R]=0x80;
     for (i=R+1; i<128; i++) {
       msgTBH[i]=0x00;
@@ -335,7 +335,7 @@ void sha512_md(unsigned char message[], int size, unsigned long hash[8]) {
 }
 
 
-void sha512_processVER1(unsigned long hash[], unsigned char msg[]) {
+void sha512_processVER1(unsigned long hash[], uint8_t msg[]) {
   const unsigned long K[80] = {
     0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
     0x3956c25bf348b538, 0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118,
@@ -408,7 +408,7 @@ void sha512_processVER1(unsigned long hash[], unsigned char msg[]) {
 
 
 
-void sha512_process(unsigned long hash[], unsigned char msg[]) {
+void sha512_process(unsigned long hash[], uint8_t msg[]) {
   const unsigned long K[80] = {
     0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
     0x3956c25bf348b538, 0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118,

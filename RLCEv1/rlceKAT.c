@@ -18,29 +18,29 @@
 
 #include "rlce.h"
 #define OPTIMIZED 0
-int RLCEspad(unsigned char bytes[],unsigned int BLen,
-	     unsigned char padded[], unsigned int paddedLen,
+int RLCEspad(uint8_t bytes[],size_t BLen,
+	     uint8_t padded[], size_t paddedLen,
 	     RLCE_public_key_t pk,
-	     unsigned char randomness[], unsigned int randLen,
-	     unsigned char e0[], unsigned int e0Len);
-int RLCEspadDecode(unsigned char encoded[],unsigned int encodedLen,
-		   unsigned char message[], unsigned long long *mlen,
+	     uint8_t randomness[], size_t randLen,
+	     uint8_t e0[], size_t e0Len);
+int RLCEspadDecode(uint8_t encoded[],size_t encodedLen,
+		   uint8_t message[], unsigned long long *mlen,
 		   RLCE_private_key_t sk,
-		   unsigned char e0[], unsigned int e0Len);
+		   uint8_t e0[], size_t e0Len);
 
-int RLCEpad(unsigned char bytes[],unsigned int bytesLen,
-	    unsigned char padded[], unsigned int paddedLen,
+int RLCEpad(uint8_t bytes[],size_t bytesLen,
+	    uint8_t padded[], size_t paddedLen,
 	    RLCE_public_key_t pk,
-	    unsigned char randomness[], unsigned int randLen,
-	    unsigned char e0[], unsigned int e0Len);
-int RLCEpadDecode(unsigned char encoded[],unsigned int encodedLen,
-		  unsigned char message[], unsigned long long *mlen,
+	    uint8_t randomness[], size_t randLen,
+	    uint8_t e0[], size_t e0Len);
+int RLCEpadDecode(uint8_t encoded[],size_t encodedLen,
+		  uint8_t message[], unsigned long long *mlen,
 		  RLCE_private_key_t sk,
-		  unsigned char e0[], unsigned int e0Len);
-int rangeadd(unsigned char bytes1[], unsigned char bytes2[], unsigned int bytesize);
+		  uint8_t e0[], size_t e0Len);
+int rangeadd(uint8_t bytes1[], uint8_t bytes2[], size_t bytesize);
 poly_t genPolyTable(int deg);
 
-int getRLCEparameters(unsigned int para[], unsigned int scheme, unsigned int padding) {
+int getRLCEparameters(size_t para[], size_t scheme, size_t padding) {
   para[9]=padding;  /* 0 for RLCEspad-mediumEncoding
                         1 for RLCEpad-mediumEncoding
                         2 for RLCEspad-basicEncoding
@@ -927,10 +927,10 @@ int getRLCEparameters(unsigned int para[], unsigned int scheme, unsigned int pad
 }
 
 
-RLCE_private_key_t RLCE_private_key_init (unsigned int para[]) {
+RLCE_private_key_t RLCE_private_key_init (size_t para[]) {
   RLCE_private_key_t key;
   key= (RLCE_private_key_t) malloc(sizeof (struct RLCE_private_key));
-  key->para = malloc(PARASIZE * sizeof(unsigned int));
+  key->para = malloc(PARASIZE * sizeof(size_t));
   int i;
   for (i=0; i<PARASIZE; i++) (key->para[i])=para[i];
   key->perm1 =vec_init(para[0]);
@@ -954,11 +954,11 @@ void RLCE_free_sk(RLCE_private_key_t sk) {
   sk=NULL;
 }
 
-RLCE_public_key_t RLCE_public_key_init (unsigned int para[]) {
+RLCE_public_key_t RLCE_public_key_init (size_t para[]) {
   RLCE_public_key_t pk;
   int i;
   pk= (RLCE_public_key_t) malloc(sizeof (struct RLCE_public_key));
-  pk->para = malloc(PARASIZE * sizeof(unsigned int));
+  pk->para = malloc(PARASIZE * sizeof(size_t));
   for (i=0; i<PARASIZE; i++) (pk->para[i])=para[i];
   pk->G = matrix_init(para[1], para[0]+para[2]-para[1]); /* k\times (n+w)-k */
   return pk;
@@ -971,13 +971,13 @@ void RLCE_free_pk(RLCE_public_key_t pk) {
   pk=NULL;
 }
 
-int pk2B (RLCE_public_key_t pk, unsigned char pkB[], unsigned int *blen) {
+int pk2B (RLCE_public_key_t pk, uint8_t pkB[], size_t *blen) {
   int i, ret;
   if (blen[0]<pk->para[18]) return KEYBYTE2SMALL;
   pkB[0]= (pk->para[10])|(pk->para[9]<<4);
-  unsigned int nplusw=pk->para[0]+pk->para[2];
-  unsigned int k=pk->para[1];
-  unsigned int pkLen=k*(nplusw-k);
+  size_t nplusw=pk->para[0]+pk->para[2];
+  size_t k=pk->para[1];
+  size_t pkLen=k*(nplusw-k);
   vector_t FE=vec_init(pkLen);
   for (i=0;i<k;i++) memcpy(&(FE->data[i*(nplusw-k)]),(pk->G)->data[i],(nplusw-k)*sizeof(field_t));
   blen[0] = (pkLen*(pk->para[3]))/8;
@@ -990,8 +990,8 @@ int pk2B (RLCE_public_key_t pk, unsigned char pkB[], unsigned int *blen) {
   return 0;
 }
 
-int sk2B (RLCE_private_key_t sk, unsigned char skB[], unsigned int *blen) {
-  unsigned int sklen =sk->para[17];
+int sk2B (RLCE_private_key_t sk, uint8_t skB[], size_t *blen) {
+  size_t sklen =sk->para[17];
   if (blen[0]<sklen) return KEYBYTE2SMALL;
   int i,j,ret;
   int n=sk->para[0];
@@ -1011,9 +1011,9 @@ int sk2B (RLCE_private_key_t sk, unsigned char skB[], unsigned int *blen) {
     j=j+2;
   }
   j=0;
-  unsigned int invSLen=0;
+  size_t invSLen=0;
   if (DECODINGMETHOD!=2) invSLen= ((sk->S)->numR) *  ((sk->S)->numC);
-  unsigned int totalFELen=2*w+invSLen+n+k*(n+w-k);
+  size_t totalFELen=2*w+invSLen+n+k*(n+w-k);
   vector_t FE=vec_init(totalFELen);
   for (i=0; i<w; i++) {
     FE->data[j]=((sk->A)->A[i])->data[0][0];
@@ -1042,33 +1042,33 @@ int sk2B (RLCE_private_key_t sk, unsigned char skB[], unsigned int *blen) {
   return 0;
 }
 
-RLCE_public_key_t B2pk(const unsigned char binByte[], unsigned long long blen) {
+RLCE_public_key_t B2pk(const uint8_t binByte[], unsigned long long blen) {
   int i,ret=0;
-  unsigned int scheme=binByte[0] & 0x0F;
-  unsigned int padding=binByte[0]>>4;
-  unsigned int para[PARASIZE];
+  size_t scheme=binByte[0] & 0x0F;
+  size_t padding=binByte[0]>>4;
+  size_t para[PARASIZE];
   ret=getRLCEparameters(para, scheme,padding);
   if (ret<0) return NULL;
   RLCE_public_key_t pk = RLCE_public_key_init(para);
-  unsigned int nplusw=pk->para[0]+pk->para[2];
-  unsigned int k=pk->para[1];
-  unsigned int pkLen=k*(nplusw-k);
+  size_t nplusw=pk->para[0]+pk->para[2];
+  size_t k=pk->para[1];
+  size_t pkLen=k*(nplusw-k);
   vector_t FE=vec_init(pkLen);
   int byteLen = (pkLen*(pk->para[3]))/8;
   if ((pkLen*(pk->para[3]))%8 > 0) byteLen++;
   if (byteLen>blen-1) return NULL;
-  if ((pk->para[3])==10) ret=B2FE10((unsigned char*)&(binByte[1]), byteLen,FE);
-  if ((pk->para[3])==11) ret=B2FE11((unsigned char*)&(binByte[1]), byteLen,FE);
+  if ((pk->para[3])==10) ret=B2FE10((uint8_t*)&(binByte[1]), byteLen,FE);
+  if ((pk->para[3])==11) ret=B2FE11((uint8_t*)&(binByte[1]), byteLen,FE);
   if (ret<0) return NULL;
   for (i=0;i<k;i++) memcpy((pk->G)->data[i], &(FE->data[i*(nplusw-k)]),(nplusw-k)*sizeof(field_t));
   vector_free(FE);
   return pk;
 }
 
-RLCE_private_key_t B2sk(const unsigned char binByte[], unsigned long long blen) {
-  unsigned int scheme=binByte[0] & 0x0F;
-  unsigned int padding=binByte[0]>>4;
-  unsigned int para[PARASIZE];  
+RLCE_private_key_t B2sk(const uint8_t binByte[], unsigned long long blen) {
+  size_t scheme=binByte[0] & 0x0F;
+  size_t padding=binByte[0]>>4;
+  size_t para[PARASIZE];  
   getRLCEparameters(para, scheme,padding);
   RLCE_private_key_t sk = RLCE_private_key_init (para);
   int sklen =sk->para[17];
@@ -1085,9 +1085,9 @@ RLCE_private_key_t B2sk(const unsigned char binByte[], unsigned long long blen) 
     SnumR=k;
     SnumC=sk->para[15]+1;
   }  
-  unsigned int invSLen=0;
+  size_t invSLen=0;
   if (DECODINGMETHOD!=2) invSLen= SnumR * SnumC;
-  unsigned int totalFELen=2*w+invSLen+n+k*(n+w-k);
+  size_t totalFELen=2*w+invSLen+n+k*(n+w-k);
   vector_t FE=vec_init(totalFELen);
   int permByteLen=4*n+2*w;
   j=1;  
@@ -1110,8 +1110,8 @@ RLCE_private_key_t B2sk(const unsigned char binByte[], unsigned long long blen) 
   int byteLen = totalFELen*(sk->para[3])/8;
   if ((totalFELen*(sk->para[3]))%8 > 0) byteLen++;
   if (byteLen>blen-permByteLen-1) return NULL;  
-  if ((sk->para[3])==10) ret=B2FE10((unsigned char*)&(binByte[permByteLen+1]), byteLen,FE);
-  if ((sk->para[3])==11) ret=B2FE11((unsigned char*)&(binByte[permByteLen+1]), byteLen,FE);
+  if ((sk->para[3])==10) ret=B2FE10((uint8_t*)&(binByte[permByteLen+1]), byteLen,FE);
+  if ((sk->para[3])==11) ret=B2FE11((uint8_t*)&(binByte[permByteLen+1]), byteLen,FE);
   if (ret<0) return NULL;
   j=0;
   for (i=0; i<w; i++) {
@@ -1137,8 +1137,8 @@ RLCE_private_key_t B2sk(const unsigned char binByte[], unsigned long long blen) 
   return sk;
 }
 
-int RLCE_key_setup (unsigned char entropy[], int entropylen,
-		    unsigned char nonce[], int noncelen,
+int RLCE_key_setup (uint8_t entropy[], int entropylen,
+		    uint8_t nonce[], int noncelen,
 		    RLCE_public_key_t pk, RLCE_private_key_t sk) {
   int ret=0;
   int m=sk->para[3];
@@ -1156,11 +1156,11 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   if ((m*nRE)%8 >0) nRBforRE++;
 
   int nRB = nRBforRE +4*n+2*w;
-  unsigned char *randomBytes=calloc(nRB, sizeof(unsigned char));  
+  uint8_t *randomBytes=calloc(nRB, sizeof(uint8_t));  
 
-  unsigned char pers[] ="PostQuantumCryptoRLCEversion2017";
+  uint8_t pers[] ="PostQuantumCryptoRLCEversion2017";
   int perlen = sizeof(pers)-1;
-  unsigned char addS[]="GRSbasedPostQuantumENCSchemeRLCE";
+  uint8_t addS[]="GRSbasedPostQuantumENCSchemeRLCE";
   int addlen = sizeof(addS)-1;
   
   /* KAT */
@@ -1231,7 +1231,7 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   
   if (DRBG==0) {  
     char noncehex[] = "5e7d69e187577b0433eee8eab9f77731";
-    unsigned char newnonce[16];
+    uint8_t newnonce[16];
     if (noncelen==0) {
       hex2char(noncehex, newnonce, 16);
       noncelen=16;
@@ -1259,10 +1259,10 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   }
   if (DRBG==2) {
     int mgfseedLen=entropylen+perlen+addlen;
-    unsigned char *mgfseed=calloc(mgfseedLen, sizeof(unsigned char));
-    memcpy(mgfseed, entropy, entropylen*sizeof(unsigned char));
-    memcpy(&mgfseed[entropylen], pers, perlen*sizeof(unsigned char));
-    memcpy(&mgfseed[entropylen+perlen], addS, addlen*sizeof(unsigned char));
+    uint8_t *mgfseed=calloc(mgfseedLen, sizeof(uint8_t));
+    memcpy(mgfseed, entropy, entropylen*sizeof(uint8_t));
+    memcpy(&mgfseed[entropylen], pers, perlen*sizeof(uint8_t));
+    memcpy(&mgfseed[entropylen+perlen], addS, addlen*sizeof(uint8_t));
     RLCE_MGF512(mgfseed,mgfseedLen,randomBytes, nRB);     
   }
 
@@ -1495,8 +1495,8 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
     fprintf(f, "%04x)\n",(sk->G)->data[i][(sk->G)->numC-1]);
   }
 
-  unsigned int sklen =sk->para[17];
-  unsigned char *skB=calloc(sklen, sizeof(unsigned char));
+  size_t sklen =sk->para[17];
+  uint8_t *skB=calloc(sklen, sizeof(uint8_t));
   sk2B(sk, skB, &sklen);
   fprintf(f, "\n\nOutput Values:\n\n");
   fprintf(f, "\nsk = ");
@@ -1504,8 +1504,8 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   fprintf(f, "\n");
   free(skB);
 
-  unsigned int pklen =pk->para[18];
-  unsigned char *pkB=calloc(pklen, sizeof(unsigned char));
+  size_t pklen =pk->para[18];
+  uint8_t *pkB=calloc(pklen, sizeof(uint8_t));
   pk2B(pk,pkB,&pklen);
   fprintf(f, "\npk = ");
   for (i=0; i<pklen; i++) fprintf(f, "%02x", pkB[i]);
@@ -1524,12 +1524,12 @@ int RLCE_key_setup (unsigned char entropy[], int entropylen,
   return 0;
 }
 
-int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entropylen,
-		 unsigned char nonce[], unsigned int noncelen,
-                 RLCE_public_key_t pk, unsigned char cipher[], unsigned long long *clen){
-  unsigned char pers[] ="PQENCRYPTIONRLCEver1";
+int RLCE_encrypt(uint8_t msg[], uint8_t entropy[], size_t entropylen,
+		 uint8_t nonce[], size_t noncelen,
+                 RLCE_public_key_t pk, uint8_t cipher[], unsigned long long *clen){
+  uint8_t pers[] ="PQENCRYPTIONRLCEver1";
   int perslen = sizeof(pers)-1;
-  unsigned char add[]="GRSbasedPQEncryption0";
+  uint8_t add[]="GRSbasedPQEncryption0";
   int addlen = sizeof(add)-1;
   add[addlen-1]=0x00;
   int n=pk->para[0];
@@ -1538,7 +1538,7 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
   int t = pk->para[11];
   int m=pk->para[3];
   int nplusw=n+w;
-  unsigned int kPlust=k+t; 
+  size_t kPlust=k+t; 
   vector_t errValue=vec_init(t);
   field_t errLocation[t];
   vector_t FE_vec;
@@ -1562,18 +1562,18 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
     if ((m*(t+10))%8 >0) nRB1++;
   }
   nRB=nRB0+nRB1;
-  unsigned char * randBytes;
-  randBytes = (unsigned char *) calloc(nRB, sizeof(unsigned char));
-  unsigned char * padrand;
-  padrand =  (unsigned char *) calloc(pk->para[8], sizeof(unsigned char));
+  uint8_t * randBytes;
+  randBytes = (uint8_t *) calloc(nRB, sizeof(uint8_t));
+  uint8_t * padrand;
+  padrand =  (uint8_t *) calloc(pk->para[8], sizeof(uint8_t));
   hash_drbg_state_t drbgState=NULL;
   ctr_drbg_state_t ctrdrbgState=NULL;
   drbg_Input_t drbgInput=NULL;
 
   if ((CTRPADDRBG==0)&&(DRBG!=2)){
-    unsigned char nonceAppend[]="RLCEencNonceVer1";
+    uint8_t nonceAppend[]="RLCEencNonceVer1";
     int nonceAppendlen = sizeof(nonceAppend)-1;
-    unsigned char noncenew[noncelen+nonceAppendlen];
+    uint8_t noncenew[noncelen+nonceAppendlen];
     if (noncelen >0) memcpy(noncenew, nonce, noncelen);
     memcpy(&noncenew[noncelen], nonceAppend, nonceAppendlen);
     noncelen=noncelen+nonceAppendlen;
@@ -1589,11 +1589,11 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
     if (ret<0) return ret;
   }
   int mgfseedLen=entropylen+perslen+addlen;
-  unsigned char *mgfseed=calloc(mgfseedLen, sizeof(unsigned char));
+  uint8_t *mgfseed=calloc(mgfseedLen, sizeof(uint8_t));
   if (DRBG==2) {
-    memcpy(mgfseed, entropy, entropylen*sizeof(unsigned char));
-    memcpy(&mgfseed[entropylen], pers, perslen*sizeof(unsigned char));
-    memcpy(&mgfseed[entropylen+perslen], add, addlen*sizeof(unsigned char));
+    memcpy(mgfseed, entropy, entropylen*sizeof(uint8_t));
+    memcpy(&mgfseed[entropylen], pers, perslen*sizeof(uint8_t));
+    memcpy(&mgfseed[entropylen+perslen], add, addlen*sizeof(uint8_t));
   }
 
   
@@ -1661,8 +1661,8 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
   
   fprintf(f, "ss = ");
   for (i=0; i<64; i++) fprintf(f,"%02x", msg[i]);
-  unsigned int pklen =pk->para[18];
-  unsigned char *pkB=calloc(pklen, sizeof(unsigned char));
+  size_t pklen =pk->para[18];
+  uint8_t *pkB=calloc(pklen, sizeof(uint8_t));
   pk2B(pk,pkB,&pklen);
   fprintf(f, "\npk = ");
   for (i=0; i<pklen; i++) fprintf(f, "%02x", pkB[i]);
@@ -1671,16 +1671,16 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
   fprintf(f, "\n\nIntermediate Values:\n\n");
   /* KAT */
 
-  unsigned int ctr=0;
+  size_t ctr=0;
   unsigned short repeat = 1;
   int paddedLen= paddedLen=pk->para[6]+pk->para[7]+pk->para[8];
-  unsigned char *paddedMSG=calloc(paddedLen, sizeof(unsigned char));
+  uint8_t *paddedMSG=calloc(paddedLen, sizeof(uint8_t));
   while (repeat) { /* this loop makes sure that errors will not be zero */
     repeat = 0;    
     if ((CTRPADDRBG==0)&&(DRBG!=2)) hash_DRBG_Generate(drbgState, drbgInput,randBytes,nRB);
     if ((CTRPADDRBG==1)&&(DRBG!=2)) ctr_DRBG_Generate(ctrdrbgState,drbgInput,randBytes,nRB);    
     if (DRBG==2) {
-      memcpy(&mgfseed[entropylen+perslen], add, addlen*sizeof(unsigned char));
+      memcpy(&mgfseed[entropylen+perslen], add, addlen*sizeof(uint8_t));
       RLCE_MGF512(mgfseed,mgfseedLen,randBytes, nRB);
     }
     ctr++;
@@ -1697,7 +1697,7 @@ int RLCE_encrypt(unsigned char msg[], unsigned char entropy[], unsigned int entr
      * e0=l_0||l_1||...||l_t where each l_i is two bytes*/
     int tmpidx =0;
     int e0Len = 4*t;
-    unsigned char e0[e0Len];
+    uint8_t e0[e0Len];
     int usede0Len = 2*t; /*  mediumPadding: usede0Len = 2*t */
     for (i=0; i<nplusw; i++) {
       if (tempArray[i]==1) {
@@ -1878,7 +1878,7 @@ int recoverRem(int ex, field_t eLocationIndicator[],field_t dest[],RLCE_private_
   return ret;
 }
 
-int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_key_t sk, unsigned char msg[],
+int RLCE_decrypt(uint8_t cipher[], unsigned long long clen, RLCE_private_key_t sk, uint8_t msg[],
 		 unsigned long long *mlen){
   if (sk==NULL) return SKNULL;
   int n=sk->para[0];
@@ -1970,8 +1970,8 @@ int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_k
   fprintf(f, "Input Values:\ncipher = ");
   for (i=0; i<clen; i++) fprintf(f,"%02x", cipher[i]);
 
-  unsigned int sklen =sk->para[17];
-  unsigned char *skB=calloc(sklen, sizeof(unsigned char));
+  size_t sklen =sk->para[17];
+  uint8_t *skB=calloc(sklen, sizeof(uint8_t));
   sk2B(sk, skB, &sklen);
   fprintf(f, "\nsk = ");
   for (i=0; i<sklen; i++) fprintf(f, "%02x", skB[i]);
@@ -2148,8 +2148,8 @@ int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_k
   }
 
   /* Errors and error locations */
-  unsigned int errLocation[t];
-  memset(errLocation, 0, t*sizeof(unsigned int));
+  size_t errLocation[t];
+  memset(errLocation, 0, t*sizeof(size_t));
   vector_t errValue=vec_init(t);
 
   if (OPTIMIZED==1) {
@@ -2306,7 +2306,7 @@ int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_k
   free(eLocationIndicator);
   free(cipherB4A);
   free(dest);
-  unsigned char paddedMSG[paddedLen]; /* padded msg k1+k1+k2 bytes */
+  uint8_t paddedMSG[paddedLen]; /* padded msg k1+k1+k2 bytes */
   if ((sk->para[3])==10) ret=FE2B10(FE_vec, paddedMSG,paddedLen);
   if ((sk->para[3])==11) ret=FE2B11(FE_vec, paddedMSG,paddedLen);
   if (ret<0) return ret;
@@ -2325,7 +2325,7 @@ int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_k
   
   /* BEGIN message de-padding */
   int e0Len = 4*t;
-  unsigned char e0[e0Len];/* bytes used for padding purpose */
+  uint8_t e0[e0Len];/* bytes used for padding purpose */
   for (i=0; i<t; i++) {
     e0[2*i]= errLocation[i]>>8;
     e0[2*i+1]= errLocation[i];
@@ -2369,7 +2369,7 @@ int RLCE_decrypt(unsigned char cipher[], unsigned long long clen, RLCE_private_k
   return 0;
 }
 
-int rlceWriteFile(char* filename, unsigned char bytes[], unsigned long long blen, int hex) {
+int rlceWriteFile(char* filename, uint8_t bytes[], unsigned long long blen, int hex) {
   FILE *f = fopen(filename, "w"); /* r or w */
   if (f == NULL) return FILEERROR;
   int i;
@@ -2379,7 +2379,7 @@ int rlceWriteFile(char* filename, unsigned char bytes[], unsigned long long blen
   return 0;
 }
 
-unsigned char* rlceReadFile(char* filename, unsigned long long *blen, int hex) {
+uint8_t* rlceReadFile(char* filename, unsigned long long *blen, int hex) {
   FILE *f = fopen(filename, "rb");
   if (f==NULL) return NULL;
   fseek (f,0,SEEK_END);
@@ -2388,12 +2388,12 @@ unsigned char* rlceReadFile(char* filename, unsigned long long *blen, int hex) {
   char *buffer=calloc(blen[0]+1, sizeof(char)); 
   fread(buffer, 1,blen[0],f);
   fclose(f);
-  if (hex==0) return (unsigned char*) buffer;
+  if (hex==0) return (uint8_t*) buffer;
   if ((blen[0]%2)>0) return NULL;
   blen[0] = blen[0]/2;
   char buf[10];
-  unsigned char *hexBin=NULL; 
-  hexBin=calloc(blen[0], sizeof(unsigned char));
+  uint8_t *hexBin=NULL; 
+  hexBin=calloc(blen[0], sizeof(uint8_t));
   int count;
   for(count = 0; count<blen[0]; count++) {
     sprintf(buf, "0x%c%c", buffer[2*count], buffer[2*count+1]);
@@ -2405,8 +2405,8 @@ unsigned char* rlceReadFile(char* filename, unsigned long long *blen, int hex) {
 
 int writeSK(char* filename, RLCE_private_key_t sk, int hex) {
   int ret=0;
-  unsigned int sklen=sk->para[17];
-  unsigned char *skB=calloc(sklen, sizeof(unsigned char));
+  size_t sklen=sk->para[17];
+  uint8_t *skB=calloc(sklen, sizeof(uint8_t));
   ret=sk2B(sk, skB, &sklen);
   if (ret<0) return ret;
   ret=rlceWriteFile(filename,skB,sklen, hex);
@@ -2416,7 +2416,7 @@ int writeSK(char* filename, RLCE_private_key_t sk, int hex) {
 
 RLCE_private_key_t readSK(char* filename, int hex) {
   unsigned long long blen=0;
-  unsigned char* binByte=rlceReadFile(filename, &blen, hex);
+  uint8_t* binByte=rlceReadFile(filename, &blen, hex);
   if (binByte==NULL) return NULL;  
   RLCE_private_key_t sk=B2sk(binByte, blen);
   free(binByte);
@@ -2425,8 +2425,8 @@ RLCE_private_key_t readSK(char* filename, int hex) {
 
 int writePK(char* filename,  RLCE_public_key_t pk, int hex) {
   int ret;  
-  unsigned int pklen =pk->para[18];
-  unsigned char *pkB=calloc(pklen, sizeof(unsigned char));
+  size_t pklen =pk->para[18];
+  uint8_t *pkB=calloc(pklen, sizeof(uint8_t));
   ret=pk2B(pk,pkB,&pklen);
   if (ret<0) return ret;
   ret=rlceWriteFile(filename,pkB,pklen, hex);
@@ -2436,36 +2436,36 @@ int writePK(char* filename,  RLCE_public_key_t pk, int hex) {
 
 RLCE_public_key_t readPK(char* filename, int hex) {
   unsigned long long blen=0;
-  unsigned char* binByte=rlceReadFile(filename, &blen, hex);
+  uint8_t* binByte=rlceReadFile(filename, &blen, hex);
   if (binByte==NULL) return NULL;
   RLCE_public_key_t pk=B2pk(binByte, blen);
   free(binByte);
   return pk;
 }
 
-int RLCEspad(unsigned char bytes[],unsigned int bytesLen,
-	     unsigned char padded[], unsigned int paddedLen,
+int RLCEspad(uint8_t bytes[],size_t bytesLen,
+	     uint8_t padded[], size_t paddedLen,
 	     RLCE_public_key_t pk,
-	     unsigned char randomness[], unsigned int randLen,
-	     unsigned char e0[], unsigned int e0Len) {
+	     uint8_t randomness[], size_t randLen,
+	     uint8_t e0[], size_t e0Len) {
   int i = 0;
   int k1=pk->para[6];
   int k2=pk->para[7];
   int k3=pk->para[8]; 
   if ((bytesLen!= k1)||(randLen!= k3)||(paddedLen!=k1+k2+k3))
     return SPADPARAERR;
-  unsigned int alpha=8*(k1+k2+k3)-pk->para[5];
-  unsigned char mask = 0xFF << alpha;
+  size_t alpha=8*(k1+k2+k3)-pk->para[5];
+  uint8_t mask = 0xFF << alpha;
   randomness[k3-1] &= mask; /* set the last alpha bits as zero */  
-  unsigned char re0[k3+e0Len];
+  uint8_t re0[k3+e0Len];
   memcpy(re0, randomness, k3);
   if (e0Len !=0) memcpy(&re0[k3], e0, e0Len);
-  unsigned char mre0[k1+k3+e0Len];
+  uint8_t mre0[k1+k3+e0Len];
   memcpy(mre0, bytes, k1);
   memcpy(&mre0[k1], re0, k3+e0Len);
-  unsigned char h1mre0[k2]; 
+  uint8_t h1mre0[k2]; 
   RLCE_MGF512(mre0, k1+k3+e0Len, h1mre0, k2);
-  unsigned char h2re0[k1+k2]; 
+  uint8_t h2re0[k1+k2]; 
   RLCE_MGF512(re0, k3+e0Len, h2re0,k1+k2);
   memcpy(padded, bytes, k1);
   memcpy(&padded[k1], h1mre0,k2);
@@ -2476,10 +2476,10 @@ int RLCEspad(unsigned char bytes[],unsigned int bytesLen,
   return 0;
 }
 
-int RLCEspadDecode(unsigned char encoded[],unsigned int encodedLen,
-		   unsigned char message[], unsigned long long *mlen,
+int RLCEspadDecode(uint8_t encoded[],size_t encodedLen,
+		   uint8_t message[], unsigned long long *mlen,
 		   RLCE_private_key_t sk,
-		   unsigned char e0[], unsigned int e0Len) {
+		   uint8_t e0[], size_t e0Len) {
   int i= 0;
   int k1=sk->para[6];
   int k2=sk->para[7];
@@ -2487,22 +2487,22 @@ int RLCEspadDecode(unsigned char encoded[],unsigned int encodedLen,
   if (encodedLen!=(k1+k2+k3)) return SPADPARAERR;
   if ((mlen==NULL) || (message==NULL)) return MSGNULL;
   if (mlen[0]< k1) return SMG2SMALL;
-  unsigned char randomness[k3];
+  uint8_t randomness[k3];
   memcpy(randomness, &encoded[k1+k2],k3);
-  unsigned int alpha=8*(k1+k2+k3)-sk->para[5]; 
-  unsigned char mask = 0xFF << alpha;
+  size_t alpha=8*(k1+k2+k3)-sk->para[5]; 
+  uint8_t mask = 0xFF << alpha;
   randomness[k3-1] &= mask; /* set the last alpha bits as zero */
-  unsigned char re0[k3+e0Len];
+  uint8_t re0[k3+e0Len];
   memcpy(re0, randomness,k3);
   if (e0Len !=0) memcpy(&re0[k3], e0, e0Len);
-  unsigned char h2re0[k1+k2]; 
+  uint8_t h2re0[k1+k2]; 
   RLCE_MGF512(re0,k3+e0Len, h2re0,k1+k2);
   if (OPTIMIZED==1) {
     rangeadd(h2re0, encoded,k1+k2);
   } else for (i=0;i<k1+k2;i++) encoded[i] = encoded[i] ^h2re0[i];
   memcpy(message, encoded, k1);
-  unsigned char h1mre0[k2];
-  unsigned char mre0[k1+k3+e0Len];
+  uint8_t h1mre0[k2];
+  uint8_t mre0[k1+k3+e0Len];
   memcpy(mre0, message, k1);
   memcpy(&mre0[k1], re0, k3+e0Len);
   RLCE_MGF512(mre0, k1+k3+e0Len, h1mre0,k2);
@@ -2510,11 +2510,11 @@ int RLCEspadDecode(unsigned char encoded[],unsigned int encodedLen,
   return 0;
 }
 
-int RLCEpad(unsigned char bytes[],unsigned int bytesLen,
-	    unsigned char padded[], unsigned int paddedLen,
+int RLCEpad(uint8_t bytes[],size_t bytesLen,
+	    uint8_t padded[], size_t paddedLen,
 	    RLCE_public_key_t pk,
-	    unsigned char randomness[], unsigned int randLen,
-	    unsigned char e0[], unsigned int e0Len) {
+	    uint8_t randomness[], size_t randLen,
+	    uint8_t e0[], size_t e0Len) {
   int k1=pk->para[6];
   int k2=pk->para[7];
   int k3=pk->para[8]; 
@@ -2522,18 +2522,18 @@ int RLCEpad(unsigned char bytes[],unsigned int bytesLen,
   if ((bytesLen!=k1)||(randLen!=k3)||(paddedLen!=(k1+k2+k3))){
     return PADPARAERR;
   }
-  unsigned int alpha=8*(k1+k2+k3)-pk->para[5];
-  unsigned char mask = 0xFF << alpha;
+  size_t alpha=8*(k1+k2+k3)-pk->para[5];
+  uint8_t mask = 0xFF << alpha;
   randomness[k3-1] &= mask; /* set the last alpha bits as zero */
-  unsigned char re0[k3+e0Len];
+  uint8_t re0[k3+e0Len];
   memcpy(re0, randomness, k3);
   if (e0Len !=0) memcpy(&re0[k3], e0, e0Len);
-  unsigned char mre0[k1+k3+e0Len];
+  uint8_t mre0[k1+k3+e0Len];
   memcpy(mre0, bytes, k1);
   memcpy(&mre0[k1], re0, k3+e0Len);
-  unsigned char h1mre0[k2]; 
+  uint8_t h1mre0[k2]; 
   RLCE_MGF512(mre0, k1+k3+e0Len, h1mre0,k2);
-  unsigned char h2re0[k1+k2];
+  uint8_t h2re0[k1+k2];
   RLCE_MGF512(re0, k3+e0Len, h2re0,k1+k2);
   memcpy(padded, bytes, k1);
   memcpy(&padded[k1], h1mre0,k2);
@@ -2541,9 +2541,9 @@ int RLCEpad(unsigned char bytes[],unsigned int bytesLen,
   if (OPTIMIZED==1) {
     rangeadd(h2re0, padded, pk->para[6]+pk->para[7]);
   } else for (i=0;i<k1+k2;i++) padded[i]=padded[i]^h2re0[i];
-  unsigned char mh1Ph2[k1+k2]; 
+  uint8_t mh1Ph2[k1+k2]; 
   memcpy(mh1Ph2, padded, k1+k2);
-  unsigned char h3mh1Ph2[k3];
+  uint8_t h3mh1Ph2[k3];
   RLCE_MGF512(mh1Ph2,k1+k2, h3mh1Ph2,k3);
   if (OPTIMIZED==1) {
     rangeadd(h3mh1Ph2, &(padded[k1+k2]),k3);
@@ -2551,10 +2551,10 @@ int RLCEpad(unsigned char bytes[],unsigned int bytesLen,
   return 0;
 }
 
-int RLCEpadDecode(unsigned char encoded[],unsigned int encodedLen,
-		  unsigned char message[], unsigned long long *mlen,
+int RLCEpadDecode(uint8_t encoded[],size_t encodedLen,
+		  uint8_t message[], unsigned long long *mlen,
 		  RLCE_private_key_t sk,
-		  unsigned char e0[], unsigned int e0Len) {
+		  uint8_t e0[], size_t e0Len) {
   int k1=sk->para[6];
   int k2=sk->para[7];
   int k3=sk->para[8]; 
@@ -2562,30 +2562,30 @@ int RLCEpadDecode(unsigned char encoded[],unsigned int encodedLen,
   if (encodedLen!=(k1+k2+k3)) return PADPARAERR;
   if ((mlen==NULL) || (message==NULL)) return MSGNULL;
   if (mlen[0]< k1) return SMG2SMALL;  
-  unsigned char mh1Ph2[k1+k2];
+  uint8_t mh1Ph2[k1+k2];
   memcpy(mh1Ph2, encoded, k1+k2);
-  unsigned char h3mh1Ph2[k3];
+  uint8_t h3mh1Ph2[k3];
   RLCE_MGF512(mh1Ph2,k1+k2, h3mh1Ph2,k3);
-  unsigned char randomness[k3];
+  uint8_t randomness[k3];
   if (OPTIMIZED==1) {
     memcpy(randomness, &encoded[k1+k2], k3);
     rangeadd(h3mh1Ph2, randomness, sk->para[8]);
   } else for (i=0; i<k3; i++) randomness[i]=encoded[k1+k2+i] ^  h3mh1Ph2[i];
-  unsigned int alpha=8*(k1+k2+k3)-sk->para[5]; 
-  unsigned char mask = 0xFF << alpha;
+  size_t alpha=8*(k1+k2+k3)-sk->para[5]; 
+  uint8_t mask = 0xFF << alpha;
   randomness[k3-1] &= mask; /* set the last alpha bits as zero */
-  unsigned char re0[k3+e0Len];
+  uint8_t re0[k3+e0Len];
   memcpy(re0, randomness, k3);
   if (e0Len !=0) memcpy(&re0[k3], e0, e0Len);
-  unsigned char h2re0[k1+k2];
+  uint8_t h2re0[k1+k2];
   RLCE_MGF512(re0,k3+e0Len,h2re0,k1+k2);
   if (OPTIMIZED==1) {
     rangeadd(h2re0, encoded,k1+k2);
   } else for (i=0; i<k1+k2; i++) encoded[i] ^= h2re0[i];
  
   memcpy(message, encoded, k1);
-  unsigned char h1mre0[k2];
-  unsigned char mre0[k1+k3+e0Len];
+  uint8_t h1mre0[k2];
+  uint8_t mre0[k1+k3+e0Len];
   memcpy(mre0, message, k1);
   memcpy(&mre0[k1],re0, k3+e0Len);
   RLCE_MGF512(mre0, k1+k3+e0Len,h1mre0, k2);
@@ -2593,7 +2593,7 @@ int RLCEpadDecode(unsigned char encoded[],unsigned int encodedLen,
   return 0;
 }
 
-void hex2char(char hex[], unsigned char hexChar[], int charlen){
+void hex2char(char hex[], uint8_t hexChar[], int charlen){
   int i=0;
   char buf[8];
   for(i = 0; i < charlen; i++) {
@@ -2603,10 +2603,10 @@ void hex2char(char hex[], unsigned char hexChar[], int charlen){
   }
 }
 
-int rangeadd(unsigned char bytes1[], unsigned char bytes2[], unsigned int bytesize){
+int rangeadd(uint8_t bytes1[], uint8_t bytes2[], size_t bytesize){
   int i;
     if (sizeof(long)==8) {
-      unsigned int size=bytesize/8;
+      size_t size=bytesize/8;
       long* longvec1=(long*) bytes1;
       long* longvec2=(long*) bytes2;
       for (i=0; i<size; i++) longvec2[i] ^= longvec1[i];

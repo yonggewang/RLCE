@@ -63,14 +63,14 @@ int main(int argc, char* argv[]) {
   char plainText[2048/8] = "Hello this is RLCE";
   int padding = RSA_PKCS1_PADDING;
   int data_len = 64;
-  unsigned char data[64];
-  unsigned char encrypted[4098];
-  unsigned char decrypted[4098];
+  uint8_t data[64];
+  uint8_t encrypted[4098];
+  uint8_t decrypted[4098];
   int eLen=0,dLen=0;
   /*
   start = clock();
   for (i=0; i<numT; i++)
-    eLen=RSA_public_encrypt(strlen(plainText),(const unsigned char*)plainText,encrypted,r,padding);
+    eLen=RSA_public_encrypt(strlen(plainText),(const uint8_t*)plainText,encrypted,r,padding);
   finish = clock();
   seconds = ((double)(finish - start))/CLOCKS_PER_SEC;
   printf("takes %f seconds\n", seconds);
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
   */
   
 
-  eLen=RSA_public_encrypt(strlen(plainText),(const unsigned char*)plainText,encrypted,r,padding);
+  eLen=RSA_public_encrypt(strlen(plainText),(const uint8_t*)plainText,encrypted,r,padding);
   start = clock();
   for (i=0; i<numT; i++)
     dLen=RSA_private_decrypt(eLen,encrypted,decrypted,r,padding);

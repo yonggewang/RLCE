@@ -13,11 +13,11 @@
 
 #include "rlce.h"
 #define NUMOFSCHEME 3
-int getMSG(unsigned char msg[], unsigned short msglen);
-void hex2char(char * pos, unsigned char hexChar[], int charlen);
+int getMSG(uint8_t msg[], unsigned short msglen);
+void hex2char(char * pos, uint8_t hexChar[], int charlen);
 
 uint64_t rdtsc(){
-    unsigned int lo,hi;
+    size_t lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((uint64_t)hi << 32) | lo;
 }
@@ -34,38 +34,38 @@ void printCPUinfo(void) {
 
 int getSKPK(RLCE_public_key_t pk,RLCE_private_key_t sk) {
   int ret;
-  unsigned char entropy[]={0x11,0x4f,0x5c,0x01,0x0c,0x52,0x17,0xe9,0xf0,0xcd,0x2a,0xce,0x99,0x92,0xd9,0x4d,
+  uint8_t entropy[]={0x11,0x4f,0x5c,0x01,0x0c,0x52,0x17,0xe9,0xf0,0xcd,0x2a,0xce,0x99,0x92,0xd9,0x4d,
 			   0x4b,0xdb,0x34,0x02,0xf3,0xe3,0x8c,0xc2,0xfd,0xc1,0x84,0x2a,0xd9,0x2d,0x3e,0x98,
 			   0x09,0x1f,0xaf,0x54,0x71,0x6f,0x1c,0x16,0x6a,0xc8,0xed,0x77,0xe6,0xbb,0x22,0x36};
-  unsigned char nonce[]={0x5e,0x7d,0x69,0xe1,0x87,0x57,0x7b,0x04,0x33,0xee,0xe8,0xea,0xb9,0xf7,0x77,0x31};
+  uint8_t nonce[]={0x5e,0x7d,0x69,0xe1,0x87,0x57,0x7b,0x04,0x33,0xee,0xe8,0xea,0xb9,0xf7,0x77,0x31};
   ret=RLCE_key_setup(entropy,sk->para[19], nonce, 16, pk, sk);
   return ret;
 }
 
-int getOneCipher(RLCE_public_key_t pk, unsigned char* cipher, unsigned long long *clen){
+int getOneCipher(RLCE_public_key_t pk, uint8_t* cipher, unsigned long long *clen){
   int ret;
   unsigned long long mlen=pk->para[6];
-  unsigned char entropy[]={0x11,0x4f,0x5c,0x01,0x0c,0x52,0x17,0xe9,0xf0,0xcd,0x2a,0xce,0x99,0x92,0xd9,0x4d,
+  uint8_t entropy[]={0x11,0x4f,0x5c,0x01,0x0c,0x52,0x17,0xe9,0xf0,0xcd,0x2a,0xce,0x99,0x92,0xd9,0x4d,
 			   0x4b,0xdb,0x34,0x02,0xf3,0xe3,0x8c,0xc2,0xfd,0xc1,0x84,0x2a,0xd9,0x2d,0x3e,0x98,
 			   0x09,0x1f,0xaf,0x54,0x71,0x6f,0x1c,0x16,0x6a,0xc8,0xed,0x77,0xe6,0xbb,0x22,0x36};
 
-  unsigned char sslong[]={0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x10,0x11,0x12,0x13,0x14,0x15,0x16,
+  uint8_t sslong[]={0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x10,0x11,0x12,0x13,0x14,0x15,0x16,
 			  0x17,0x18,0x19,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x30,0x31,0x32,
 			  0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,
 			  0x49,0x50,0x52,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x60,0x61,0x62,0x63,0x64};  
-  unsigned char *message=calloc(mlen, sizeof(unsigned char));
+  uint8_t *message=calloc(mlen, sizeof(uint8_t));
   memcpy(message, sslong, 64);
   /*
   char m[]="This is the first message encrypted by RLCE reference implementation!";
-  unsigned int actualmlen=sizeof(m)-1;
+  size_t actualmlen=sizeof(m)-1;
   memcpy(message, sslong,  actualmlen);
   message[actualmlen]=0x01;
   message[actualmlen+1]=0x00;
-  unsigned char S[2];
-  I2BS((unsigned int)actualmlen, S,2);
+  uint8_t S[2];
+  I2BS((size_t)actualmlen, S,2);
   memcpy(&(message[actualmlen+2]), S,2);
   */
-  unsigned char nonce[1];
+  uint8_t nonce[1];
   ret=RLCE_encrypt(message,entropy,pk->para[19],nonce,0,pk,cipher,clen);
   free(message);
   return ret;
@@ -75,7 +75,7 @@ void tRAM(int testRAM,int scheme,int padding) {
   RLCE_private_key_t sk;
   RLCE_public_key_t pk;
   if (testRAM==1) {
-    unsigned int para[PARASIZE];
+    size_t para[PARASIZE];
     getRLCEparameters(para,scheme,padding);
     sk=RLCE_private_key_init(para);
     pk=RLCE_public_key_init(para);
@@ -90,7 +90,7 @@ void tRAM(int testRAM,int scheme,int padding) {
   if (testRAM==2) {
     pk=readPK("pk.bin",0);
     unsigned long long clen=pk->para[16];
-    unsigned char *cipher=calloc(clen,sizeof(unsigned char));
+    uint8_t *cipher=calloc(clen,sizeof(uint8_t));
     getOneCipher(pk, cipher,(unsigned long long *) &clen);
     rlceWriteFile("cipher.bin", cipher, clen,0);
     printf("clen=%llu",clen);
@@ -102,9 +102,9 @@ void tRAM(int testRAM,int scheme,int padding) {
   if (testRAM==3) {
     sk=readSK("sk.bin",0);
     unsigned long long clen=sk->para[16];
-    unsigned char *cipher=rlceReadFile("cipher.bin", &clen, 0);
+    uint8_t *cipher=rlceReadFile("cipher.bin", &clen, 0);
     unsigned long long mlen=sk->para[6];
-    unsigned char *msg=calloc(mlen,sizeof(unsigned char));
+    uint8_t *msg=calloc(mlen,sizeof(uint8_t));
     RLCE_decrypt(cipher, clen,sk, msg, &mlen);
     free(cipher);
     free(msg);
@@ -163,7 +163,7 @@ void testpolyEvalPer(void){
 int testReedSolomonper(void) {
   clock_t start, finish;
   double seconds;
-  unsigned int para[PARASIZE];
+  size_t para[PARASIZE];
   int ret=0,i, j,scheme;
   poly_t codeword, corruptedCodeword, decodedWord, message, generator;
   int random;
@@ -245,23 +245,23 @@ void test_matper_per(int num){
   int ret;
   
 
-  unsigned char pers[] ="PostQuantumCryptoRLCEversion2017";
+  uint8_t pers[] ="PostQuantumCryptoRLCEversion2017";
   int perlen = sizeof(pers)-1;
-  unsigned char addS[]="GRSbasedPostQuantumENCSchemeRLCE";
+  uint8_t addS[]="GRSbasedPostQuantumENCSchemeRLCE";
   int addlen = sizeof(addS)-1;
   char noncehex[] = "5e7d69e187577b0433eee8eab9f77731";
-  unsigned char nonce[16];
+  uint8_t nonce[16];
   hex2char(noncehex, nonce, 16);
   int noncelen=16;
   char entropyhex[] = "5c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f77832";
-  unsigned char entropy[64];
+  uint8_t entropy[64];
   hex2char(entropyhex, entropy, 64);
   int entropylen=64;
   hash_drbg_state_t drbgState;
   drbg_Input_t drbgInput;
 
-  unsigned char *randomBytes;
-  randomBytes=calloc(nRB,sizeof(unsigned char));
+  uint8_t *randomBytes;
+  randomBytes=calloc(nRB,sizeof(uint8_t));
   drbgState=drbgstate_init(2);
   drbgInput=drbgInput_init(entropy,entropylen,nonce,noncelen,pers,perlen,addS,addlen);
   ret=hash_DRBG(drbgState,drbgInput,randomBytes, nRB);
@@ -472,18 +472,18 @@ void test_DRBBG_per(void) {
   double seconds;
   int nRB = 10000;
   int i;
-  unsigned char randomBytes[nRB];
+  uint8_t randomBytes[nRB];
 
-  unsigned char pers[] ="PostQuantumCryptoRLCEversion2017";
+  uint8_t pers[] ="PostQuantumCryptoRLCEversion2017";
   int perlen = sizeof(pers)-1;
-  unsigned char addS[]="GRSbasedPostQuantumENCSchemeRLCE";
+  uint8_t addS[]="GRSbasedPostQuantumENCSchemeRLCE";
   int addlen = sizeof(addS)-1;
   char noncehex[] = "5e7d69e187577b0433eee8eab9f77731";
-  unsigned char nonce[16];
+  uint8_t nonce[16];
   hex2char(noncehex, nonce, 16);
   int noncelen=16;
   char entropyhex[] = "5c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f778325c7d69e187577b0433ece8eab9f77832";
-  unsigned char entropy[64];
+  uint8_t entropy[64];
   hex2char(entropyhex, entropy, 64);
   int entropylen=64;
   hash_drbg_state_t drbgState;
@@ -557,7 +557,7 @@ void test_DRBBG_per(void) {
 
 
 int testFE2B2FE (int scheme, int padding) {
-  unsigned int para[PARASIZE];
+  size_t para[PARASIZE];
   int ret,i;
   ret=getRLCEparameters(para, scheme, padding);
   if (ret<0) return ret;
@@ -567,12 +567,12 @@ int testFE2B2FE (int scheme, int padding) {
   int FEsize = (nLen*8)/9;
   FE=vec_init(FEsize);
 
-  unsigned char test[nLen];
+  uint8_t test[nLen];
   for (i=0; i<nLen; i++) {
     test[i]=0xFF;
   }
  
-  unsigned char testResult[nLen];
+  uint8_t testResult[nLen];
 
   ret=B2FE9 (test, nLen, FE);
   if (ret<0) {
@@ -652,7 +652,7 @@ int testRLCEkeyIO(int scheme, int padding) {
  
   int ret=0;
   int testENC=1;
-  unsigned int para[PARASIZE];
+  size_t para[PARASIZE];
   ret=getRLCEparameters(para,scheme,padding);
   RLCE_private_key_t sk=RLCE_private_key_init(para);
   RLCE_public_key_t pk=RLCE_public_key_init(para);
@@ -673,10 +673,10 @@ int testRLCEkeyIO(int scheme, int padding) {
      pk=readPK("pk.txt",1);
      unsigned long long *mlen=malloc(sizeof(unsigned long long));
      mlen[0]=pk->para[6];
-     unsigned char *msg=calloc(mlen[0],sizeof(unsigned char)); 
+     uint8_t *msg=calloc(mlen[0],sizeof(uint8_t)); 
      unsigned long long *clen=malloc(sizeof(unsigned long long));
      clen[0]=pk->para[16];
-     unsigned char *cipher=calloc(clen[0],sizeof(unsigned char));
+     uint8_t *cipher=calloc(clen[0],sizeof(uint8_t));
      ret=getOneCipher(pk, cipher, clen);
      if (ret<0) return ret;
      printf("cipher is:\n");
@@ -733,7 +733,7 @@ int testRLCE(int numP, int numK, int numE, int numD,int t1RLCE,int ischeme,int i
   for (scheme=base; scheme<end; scheme+=1) {/* 0--7 */
     for (padding=pbase; padding<pend;padding++){
       printf("begin to test scheme %d-%d\n", scheme,padding);
-      unsigned int para[PARASIZE];
+      size_t para[PARASIZE];
       ret=getRLCEparameters(para,scheme,padding);
       start = clock();
       cycles = rdtsc();
@@ -752,9 +752,9 @@ int testRLCE(int numP, int numK, int numE, int numD,int t1RLCE,int ischeme,int i
       performance[scheme-base][padding-pbase][0]=seconds;
 
       mlen[0]=pk->para[6];
-      unsigned char *msg=calloc(mlen[0],sizeof(unsigned char)); 
+      uint8_t *msg=calloc(mlen[0],sizeof(uint8_t)); 
       clen[0]=pk->para[16];
-      unsigned char *cipher=calloc(clen[0],sizeof(unsigned char));
+      uint8_t *cipher=calloc(clen[0],sizeof(uint8_t));
     
       start=clock();
       cycles = rdtsc();
@@ -817,7 +817,7 @@ int testRLCE(int numP, int numK, int numE, int numD,int t1RLCE,int ischeme,int i
 }
 
 int hash_DRBG_Generate(hash_drbg_state_t drbgState,drbg_Input_t drbgInput,
-		    unsigned char returned_bytes[],
+		    uint8_t returned_bytes[],
 		    unsigned long req_no_of_bytes);
 int hash_DRBG_Instantiate(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int hash_DRBG_Reseed(hash_drbg_state_t drbgState, drbg_Input_t drbgInput);
@@ -831,15 +831,15 @@ int testHashDRBG(void) {
   drbgSHA512state=drbgstate_init(2);
 
   char entropyhex1[] = "136cf1c174e5a09f66b962d994396525";
-  unsigned char entropy[16];
+  uint8_t entropy[16];
   hex2char(entropyhex1, entropy, 16);
   char noncehex1[] = "fff1c6645f19231f";
-  unsigned char nonce[8];
+  uint8_t nonce[8];
   hex2char(noncehex1, nonce, 8);
   
-  unsigned char pers[1];
-  unsigned char add[1];
-  unsigned char output[80];
+  uint8_t pers[1];
+  uint8_t add[1];
+  uint8_t output[80];
   drbg_Input_t drbgSHA1input, drbgSHA256input,drbgSHA512input;
   
   drbgSHA1input=drbgInput_init(entropy,16, nonce, 8, pers,0,add, 0);
@@ -850,7 +850,7 @@ int testHashDRBG(void) {
   ret=hash_DRBG_Generate(drbgSHA1state, drbgSHA1input,output, 80);
   if (ret<0) return ret;
   char hexstring[] = "0e28130fa5ca11edd3293ca26fdb8ae1810611f78715082ed3841e7486f16677b28e33ffe0b93d98ba57ba358c1343ab2a26b4eb7940f5bc639384641ee80a25140331076268bd1ce702ad534dda0ed8";
-  unsigned char hexChar[80];
+  uint8_t hexChar[80];
   hex2char(hexstring, hexChar, 80);
   for(i = 0; i < 80; i++) {
     if (!(output[i]==hexChar[i]))  ret=TESTERROR;
@@ -862,13 +862,13 @@ int testHashDRBG(void) {
   }
 
   char entropyhex2[] = "1610b828ccd27de08ceea032a20e9208";
-  unsigned char entropy2[16];
+  uint8_t entropy2[16];
   hex2char(entropyhex2, entropy2, 16);
   char noncehex2[] = "492cf1709242f6b5";
-  unsigned char nonce2[8];
+  uint8_t nonce2[8];
   hex2char(noncehex2, nonce2, 8);
   char addhex2[] = "2b790052f09b364d4a8267a0a7de63b8";
-  unsigned char add2[16];
+  uint8_t add2[16];
   hex2char(addhex2, add2, 16);
   free_drbg_input(drbgSHA1input);
   drbgSHA1input=drbgInput_init(entropy2,16, nonce2, 8, pers,0,add, 0);
@@ -894,16 +894,16 @@ int testHashDRBG(void) {
   }
 
   char entropyhex3[] = "6466e1799a68012379631b3aae41f59b";
-  unsigned char entropy3[16];
+  uint8_t entropy3[16];
   hex2char(entropyhex3, entropy3, 16);
   char noncehex3[] = "6b0c61269f67c576";
-  unsigned char nonce3[8];
+  uint8_t nonce3[8];
   hex2char(noncehex3, nonce3, 8);
   char perhex3[] = "cc936b87c8c8c1ab85dde0ad2e9242b4";
-  unsigned char pers3[16];
+  uint8_t pers3[16];
   hex2char(perhex3, pers3, 16);
   char addhex3[] = "d1033ac553ef08f22fd38f12b49b45bc";
-  unsigned char add3[16];
+  uint8_t add3[16];
   hex2char(addhex3, add3, 16);
   free_drbg_input(drbgSHA1input);
   drbgSHA1input=drbgInput_init(entropy3,16, nonce3, 8, pers3,16,add3, 16);
@@ -925,18 +925,18 @@ int testHashDRBG(void) {
   free_drbg_input(drbgSHA1input);
 
   char entropyhex4[] = "a65ad0f345db4e0effe875c3a2e71f42c7129d620ff5c119a9ef55f05185e0fb";
-  unsigned char entropy4[32];
+  uint8_t entropy4[32];
   hex2char(entropyhex4, entropy4, 32);
   char noncehex4[] = "8581f9317517276e06e9607ddbcbcc2e";
-  unsigned char nonce4[16];
+  uint8_t nonce4[16];
   hex2char(noncehex4, nonce4, 16);
   drbgSHA256input=drbgInput_init(entropy4,32, nonce4,16, pers,0, add, 0);
   ret= hash_DRBG_Instantiate(drbgSHA256state, drbgSHA256input);
-  unsigned char outputSHA256[128];
+  uint8_t outputSHA256[128];
   ret=hash_DRBG_Generate(drbgSHA256state, drbgSHA256input,outputSHA256, 128);
   ret=hash_DRBG_Generate(drbgSHA256state, drbgSHA256input,outputSHA256, 128);
   char expouthex4[]="d3e160c35b99f340b2628264d1751060e0045da383ff57a57d73a673d2b8d80daaf6a6c35a91bb4579d73fd0c8fed111b0391306828adfed528f018121b3febdc343e797b87dbb63db1333ded9d1ece177cfa6b71fe8ab1da46624ed6415e51ccde2c7ca86e283990eeaeb91120415528b2295910281b02dd431f4c9f70427df";
-  unsigned char expectedOutSHA256[128];
+  uint8_t expectedOutSHA256[128];
   hex2char(expouthex4, expectedOutSHA256, 128);
     for(i = 0; i < 128; i++) {
     if (!(outputSHA256[i]==expectedOutSHA256[i])) {
@@ -950,16 +950,16 @@ int testHashDRBG(void) {
   }
 
   char entropyhex5[] = "68c43a008fe46a823d260a9d7fa388fb9e401f0197e7e758a744b4babb3f4651";
-  unsigned char entropy5[32];
+  uint8_t entropy5[32];
   hex2char(entropyhex5, entropy5, 32);
   char noncehex5[] = "eb6825777856331884aaf3751b3e4006";
-  unsigned char nonce5[16];
+  uint8_t nonce5[16];
   hex2char(noncehex5, nonce5, 16);
   char perhex5[] = "23ce0d32cbf2d26467f0d62acff1a3acbaa6d2746dc3ee7aa9d32c880788afc8";
-  unsigned char pers5[32];
+  uint8_t pers5[32];
   hex2char(perhex5, pers5, 32);
   char addhex5[] = "a31b9f13b58d4fa2f8d8ac42b62a207ff647339a146bd8b268b33d4aff57adbd";
-  unsigned char add5[32];
+  uint8_t add5[32];
   hex2char(addhex5, add5, 32);
   free_drbg_input(drbgSHA256input);
   drbgSHA256input=drbgInput_init(entropy5,32, nonce5,16, pers5,32, add5, 32);
@@ -982,16 +982,16 @@ int testHashDRBG(void) {
   }
 
   char entropyhex5r[] = "6c623aea73bc8a59e28c6cd9c7c7ec8ca2e75190bd5dcae5978cf0c199c23f4f";
-  unsigned char entropy5r[32];
+  uint8_t entropy5r[32];
   hex2char(entropyhex5r, entropy5r, 32);
   char noncehex5r[] = "e55db067a0ed537e66886b7cda02f772";
-  unsigned char nonce5r[16];
+  uint8_t nonce5r[16];
   hex2char(noncehex5r, nonce5r, 16);
   char perhex5r[] = "1e59d798810083d1ff848e90b25c9927e3dfb55a0888b0339566a9f9ca7542dc";
-  unsigned char pers5r[32];
+  uint8_t pers5r[32];
   hex2char(perhex5r, pers5r, 32);
   char addhex5r[] = "4e8bead7cbba7a7bc9ae1e1617222c4139661347599950e7225d1e2faa5d57f5";
-  unsigned char add5r[32];
+  uint8_t add5r[32];
   hex2char(addhex5r, add5r, 32);
   free_drbg_input(drbgSHA256input);
   drbgSHA256input=drbgInput_init(entropy5r,32, nonce5r,16, pers5r,32, add5r, 32);
@@ -1020,18 +1020,18 @@ int testHashDRBG(void) {
   free_drbg_input(drbgSHA256input);
   
   char entropyhex6[] = "6b50a7d8f8a55d7a3df8bb40bcc3b722d8708de67fda010b03c4c84d72096f8c";
-  unsigned char entropy6[32];
+  uint8_t entropy6[32];
   hex2char(entropyhex6, entropy6, 32);
   char noncehex6[] = "3ec649cc6256d9fa31db7a2904aaf025";
-  unsigned char nonce6[16];
+  uint8_t nonce6[16];
   hex2char(noncehex6, nonce6, 16);
   drbgSHA512input=drbgInput_init(entropy6,32, nonce6,16, pers,0, add, 0);
   ret= hash_DRBG_Instantiate(drbgSHA512state, drbgSHA512input);
-  unsigned char outputSHA512[256];
+  uint8_t outputSHA512[256];
   ret=hash_DRBG_Generate(drbgSHA512state, drbgSHA512input,outputSHA512, 256);
   ret=hash_DRBG_Generate(drbgSHA512state, drbgSHA512input,outputSHA512, 256);
   char expouthex6[]="95b7f17e9802d3577392c6a9c08083b67dd1292265b5f42d237f1c55bb9b10bfcfd82c77a378b8266a0099143b3c2d64611eeeb69acdc055957c139e8b190c7a06955f2c797c2778de940396a501f40e91396acf8d7e45ebdbb53bbf8c975230d2f0ff9106c76119ae498e7fbc03d90f8e4c51627aed5c8d4263d5d2b978873a0de596ee6dc7f7c29e37eee8b34c90dd1cf6a9ddb22b4cbd086b14b35de93da2d5cb1806698cbd7bbb67bfe3d31fd2d1dbd2a1e058a3eb99d7e51f1a938eed5e1c1de23a6b4345d3191409f92f39b3670d8dbfb635d8e6a36932d81033d1448d63b403ddf88e121b6e819ac381226c1321e4b08644f6727c368c5a9f7a4b3ee2";
-  unsigned char expectedOutSHA512[256];
+  uint8_t expectedOutSHA512[256];
   hex2char(expouthex6, expectedOutSHA512, 256);
     for(i = 0; i < 256; i++) {
     if (!(outputSHA512[i]==expectedOutSHA512[i])) {
@@ -1045,16 +1045,16 @@ int testHashDRBG(void) {
   }
   
   char entropyhex7[] = "31e8d6fbdc9026b0708405c20b558fcc0a107f3fdc836fe056f020df30d9dc57";
-  unsigned char entropy7[32];
+  uint8_t entropy7[32];
   hex2char(entropyhex7, entropy7, 32);
   char noncehex7[] = "2b8bbab9b486abb659c4ae8ff5978e22";
-  unsigned char nonce7[16];
+  uint8_t nonce7[16];
   hex2char(noncehex7, nonce7, 16);
   char perhex7[] = "949eb753762869aa5ea0ce725523595f9bc9b219735113e71feab228d0872c38";
-  unsigned char pers7[32];
+  uint8_t pers7[32];
   hex2char(perhex7, pers7, 32);
   char addhex7[] = "88f1180d4ef564315280a9692f107ed9c0639d79bb7040dfc3b7d58bf24ef8f5";
-  unsigned char add7[32];
+  uint8_t add7[32];
   hex2char(addhex7, add7, 32);
   free_drbg_input(drbgSHA512input);
   drbgSHA512input=drbgInput_init(entropy7,32, nonce7,16, pers7,32, add7, 32);
@@ -1077,16 +1077,16 @@ int testHashDRBG(void) {
   }
 
   char entropyhex7r[] = "4b23595b0a3640cfabb0ec34df6a613308b0448488a5d9ff99da4278e072eb34";
-  unsigned char entropy7r[32];
+  uint8_t entropy7r[32];
   hex2char(entropyhex7r, entropy7r, 32);
   char noncehex7r[] = "8e696bffd9ca3a71d2e2f05e600c8364";
-  unsigned char nonce7r[16];
+  uint8_t nonce7r[16];
   hex2char(noncehex7r, nonce7r, 16);
   char perhex7r[] = "010ba93ea68a3d4a200e5145859e299c5b5349b7645fb5bbcad687aba7d67313";
-  unsigned char pers7r[32];
+  uint8_t pers7r[32];
   hex2char(perhex7r, pers7r, 32);
   char addhex7r[] = "2b0c7c3efb36b71b917a44086d168313675b426b17c5ab3d0eb6af753f6040e0";
-  unsigned char add7r[32];
+  uint8_t add7r[32];
   hex2char(addhex7r, add7r, 32);
   free_drbg_input(drbgSHA512input);
   drbgSHA512input=drbgInput_init(entropy7r,32, nonce7r,16, pers7r,32, add7r, 32);
@@ -1120,13 +1120,13 @@ int testHashDRBG(void) {
 }
 
 int testSHA(void){
-  unsigned int hash1[5];
-  unsigned int hash2[8];
+  size_t hash1[5];
+  size_t hash2[8];
   unsigned long hash3[8];
   int size;
   int pass=0;
   
-  static unsigned char msg1[] = {'a', 'b', 'c'};
+  static uint8_t msg1[] = {'a', 'b', 'c'};
   size = 3;
   sha1_md(msg1, size, hash1);
   if ((hash1[0] != 0xa9993e36)||(hash1[1]!=0x4706816a )||(hash1[2]!=0xba3e2571 )
@@ -1153,7 +1153,7 @@ int testSHA(void){
     printf("SHA512 with input abc failed\n");
   }
 
-  static unsigned char msg3[] = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+  static uint8_t msg3[] = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
   size = sizeof(msg3)-1;
   sha1_md(msg3, size, hash1);
   if ((hash1[0] != 0x84983e44)||(hash1[1]!=0x1c3bd26e)||(hash1[2]!=0xbaae4aa1)
@@ -1171,7 +1171,7 @@ int testSHA(void){
     printf("SHA256 with input \'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\' failed\n");
   }
   
-  static unsigned char msg31[] ="abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
+  static uint8_t msg31[] ="abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
   size = sizeof(msg31)-1;
   sha512_md(msg31, size, hash3);
   if ((hash3[0] != 0x8e959b75dae313da)||(hash3[1]!=0x8cf4f72814fc143f)||(hash3[2]!=0x8f7779c6eb9f7fa1)
@@ -1182,7 +1182,7 @@ int testSHA(void){
     printf("SHA512 with input abcd....stu failed\n");
   }
   int i;
-  static unsigned char msg4[1000000];
+  static uint8_t msg4[1000000];
   for (i=0; i<1000000; i++) {
     msg4[i]='a';
   }
@@ -1216,7 +1216,7 @@ int testSHA(void){
 
 
 int testReedSolomon(void) {
-  unsigned int para[PARASIZE];
+  size_t para[PARASIZE];
   int ret=0;
   ret=getRLCEparameters(para, CRYPTO_SCHEME, CRYPTO_PADDING);
   if (ret<0) {
@@ -1413,7 +1413,7 @@ int preComputelogExpTable(void) {
   return 0;
 }
 
-int getMSG(unsigned char msg[], unsigned short msglen) {
+int getMSG(uint8_t msg[], unsigned short msglen) {
   if (msglen >1595) {
     return REQIREDMSGTOOLONG;
   }
@@ -1438,13 +1438,13 @@ int testAES(void) {
   char keystring[]="000102030405060708090a0b0c0d0e0f";
   hex2char(keystring, key->key, 16);
   char msgstring[]="00112233445566778899aabbccddeeff";
-  unsigned char msg[16];
-  unsigned char decryptedmsg[16];
+  uint8_t msg[16];
+  uint8_t decryptedmsg[16];
   hex2char(msgstring, msg, 16);
-  unsigned char cipher[16];
+  uint8_t cipher[16];
   AES_encrypt(msg, cipher,key);
   char ciphertring[]="69c4e0d86a7b0430d8cdb78070b4c55a";
-  unsigned char expectedcipher[16];
+  uint8_t expectedcipher[16];
   hex2char(ciphertring, expectedcipher, 16);
   int failed=0;
   for (i=0;i<16;i++) {
@@ -1479,7 +1479,7 @@ int testAES(void) {
   hex2char(keystring192, key->key, 24);
   AES_encrypt(msg, cipher,key);
   char ciphertring192[]="dda97ca4864cdfe06eaf70a0ec0d7191";
-  unsigned char expectedcipher192[16];
+  uint8_t expectedcipher192[16];
   hex2char(ciphertring192, expectedcipher192, 16);
   failed=0;
   for (i=0;i<16;i++) {
@@ -1514,7 +1514,7 @@ int testAES(void) {
   hex2char(keystring256, key->key, 32);
   AES_encrypt(msg, cipher,key);
   char ciphertring256[]="8ea2b7ca516745bfeafc49904b496089";
-  unsigned char expectedcipher256[16];
+  uint8_t expectedcipher256[16];
   hex2char(ciphertring256, expectedcipher256, 16);
   failed=0;
   for (i=0;i<16;i++) {
@@ -1553,10 +1553,10 @@ void free_ctr_drbg_state(ctr_drbg_state_t ctr_drbgState);
 int ctr_DRBG_Instantiate_algorithm(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int ctr_DRBG_Instantiate_algorithm_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int ctr_DRBG_Generate(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,
-		      unsigned char returned_bytes[],
+		      uint8_t returned_bytes[],
 		      unsigned long req_no_of_bytes);
 int ctr_DRBG_Generate_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput,
-		       unsigned char returned_bytes[],
+		       uint8_t returned_bytes[],
 			 unsigned long req_no_of_bytes);
 int ctr_DRBG_Reseed(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
 int ctr_DRBG_Reseed_DF(ctr_drbg_state_t drbgState, drbg_Input_t drbgInput);
@@ -1569,11 +1569,11 @@ int testCTRDRBG(void) {
   drbg192state=ctr_drbgstate_init(192);
   drbg256state=ctr_drbgstate_init(256);
 
-  unsigned char entropy[48];
-  unsigned char nonce[48];
-  unsigned char pers[48];
-  unsigned char add[48];
-  unsigned char output[64];
+  uint8_t entropy[48];
+  uint8_t nonce[48];
+  uint8_t pers[48];
+  uint8_t add[48];
+  uint8_t output[64];
 
   char entropyhex1[] = "50b96542a1f2b8b05074051fe8fb0e45adbbd5560e3594e12d485fe1bfcb741f";
   hex2char(entropyhex1, entropy, 32);  
@@ -1592,7 +1592,7 @@ int testCTRDRBG(void) {
   ret=ctr_DRBG_Generate(drbg128state, drbginput,output, 64);
   if (ret<0) return ret;
   char hexstring[] = "02b76a66f103e98d450e25e09c35337747d987471d2b3d81e03be24c7e985417a32acd72bc0a6eddd9871410dacb921c659249b4e2b368c4ac8580fb5db559bc";
-  unsigned char hexChar[64];
+  uint8_t hexChar[64];
   hex2char(hexstring, hexChar, 64);
   for(i = 0; i < 64; i++) {
     if (!(output[i]==hexChar[i])) ret=TESTERROR;
