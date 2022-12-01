@@ -15,9 +15,9 @@ static strvalue_t lookuptable[] = {
   {"genkey128", genkey128 },
   {"genkey192", genkey192},
   {"genkey256", genkey256},
-  {"enc", enc},
+  {"encr", encr},
   {"kemenc", kemenc},
-  {"dec", dec} 
+  {"decr", decr} 
 };
 
 int comfromstring(char* com) {
@@ -39,11 +39,11 @@ int main (int argc, char *argv[]) {
     printf("    %s genkey192 KEYNAME\n", argv[0]);
     printf("    %s genkey256 KEYNAME\n", argv[0]);
     printf("To encrypt a message using RLCE only, use the command:\n");
-    printf("    %s enc RLCE_PUBLIC_KEY_FILE FILE_TO_BE_ENCRYPTED\n", argv[0]);
+    printf("    %s encr RLCE_PUBLIC_KEY_FILE FILE_TO_BE_ENCRYPTED\n", argv[0]);
     printf("To encrypt a message using RLCE-AES, use the command:\n");
     printf("    %s kemenc RLCE_PUBLIC_KEY_FILE FILE_TO_BE_ENCRYPTED\n", argv[0]);
     printf("To decrypt a message, use the command:\n");
-    printf("    %s dec RLCE_PRIVETE_KEY_FILE FILE_TO_BE_DECRYPTED\n\n\n", argv[0]);
+    printf("    %s decr RLCE_PRIVETE_KEY_FILE FILE_TO_BE_DECRYPTED\n\n\n", argv[0]);
   } else {
     switch(comfromstring(argv[1])) {
     case genkey128:
@@ -73,9 +73,9 @@ int main (int argc, char *argv[]) {
       if (ret <0) printf("error code %d\n", ret);
       printf("RLCE public/private key for security level 128 was generated!\n");
       exit(0);
-    case enc:
+    case encr:
       if (argc !=4) {
-	printf("use command: %s enc RLCE_PUBLIC_KEY_FILE FILE_TO_BE_ENCRYPTED\n", argv[0]);
+	printf("use command: %s encr RLCE_PUBLIC_KEY_FILE FILE_TO_BE_ENCRYPTED\n", argv[0]);
 	exit(1);
       }
       ret=rlce_encrypt(0,argv[2],argv[3]);
@@ -89,9 +89,9 @@ int main (int argc, char *argv[]) {
       ret=rlce_encrypt(1, argv[2],argv[3]);
       if (ret <0) printf("error code %d\n", ret);
       exit(0);
-    case dec:
+    case decr:
       if (argc !=4) {
-	printf("use command: %s dec RLCE_PRIVETE_KEY_FILE FILE_TO_BE_DECRYPTED\n", argv[0]);
+	printf("use command: %s decr RLCE_PRIVETE_KEY_FILE FILE_TO_BE_DECRYPTED\n", argv[0]);
 	exit(1);
       }
       ret=rlce_decrypt(argv[2],argv[3]);

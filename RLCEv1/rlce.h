@@ -387,6 +387,6 @@ int rlce_decrypt(char* prikey, char* cipherfile);
 #define genkey128 1
 #define genkey192 2
 #define genkey256 3
-#define enc 4
+#define encr 4
 #define kemenc 5
-#define dec 6
+#define decr 6
