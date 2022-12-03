@@ -195,7 +195,6 @@ int find_deg2_roots(poly_t p, field_t pRoots[], int m) {
     pRoots[0] = GF_exp(c,m);
     return 1;    
   }
-  if ((m!=10)||(m!= 11)) return find_deg2_roots_rt(p, pRoots, m);
 
   field_t rows[m]; 
   field_t ubit[m];
