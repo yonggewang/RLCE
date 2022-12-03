@@ -92,6 +92,7 @@ OQS_API OQS_STATUS crypto_kem_decapsulate(unsigned char *ss,const unsigned char 
   memcpy(ss, message, OQS_KEM_RLCE_length_shared_secret);
   return (OQS_STATUS) ret;
 }
+#endif
 
 #define OPTIMIZED 1
 
@@ -1914,4 +1915,3 @@ void randombytes(unsigned char *x,unsigned long long xlen) {
   memcpy(x, r, xlen);
   return;	
 }
-#endif
