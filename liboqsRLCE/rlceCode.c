@@ -375,7 +375,7 @@ int sk2B (RLCE_private_key_t sk, unsigned char skB[], size_t *blen) {
   size_t sklen =sk->para[17];
   if (blen[0]<sklen) return KEYBYTE2SMALL;
   int j,ret=0;
-  size_t i;
+  size_t i=0;
   int a = (int) i;
   size_t n=sk->para[0];
   int k=sk->para[1];
