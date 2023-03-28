@@ -18,36 +18,35 @@
 
 #include <oqs/rlce.h>
 
-#if defined(OQS_ENABLE_KEM_rlce_rlcev1)
+#if defined(OQS_ENABLE_KEM_rlce_l1)
 
- OQS_KEM *OQS_KEM_rlce_new() {
+ OQS_KEM *OQS_KEM_rlce_l1_new() {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
 		return NULL;
 	}
-	kem->method_name = OQS_KEM_alg_RLCE; 
-	kem->alg_version = "OQS_KEM_alg_RLCE"; 
+	kem->method_name = OQS_KEM_alg_RLCE_l1; 
+	kem->alg_version = "OQS_KEM_alg_RLCE_l1"; 
 	
 	kem->claimed_nist_level = 1;
 	kem->ind_cca = true;
 	
-	kem->length_public_key = OQS_KEM_RLCE_length_public_key;
-	kem->length_secret_key = OQS_KEM_RLCE_length_secret_key;
-	kem->length_ciphertext = OQS_KEM_RLCE_length_ciphertext;
-	kem->length_shared_secret = OQS_KEM_RLCE_length_shared_secret;
+	kem->length_public_key = OQS_KEM_RLCE_l1_length_public_key;
+	kem->length_secret_key = OQS_KEM_RLCE_l1_length_secret_key;
+	kem->length_ciphertext = OQS_KEM_RLCE_l1_length_ciphertext;
+	kem->length_shared_secret = OQS_KEM_RLCE_l1_length_shared_secret;
 	
 	kem->keypair = crypto_kem_keygenerate;
-        kem->encaps = crypto_kem_encapsulate;
+  kem->encaps = crypto_kem_encapsulate;
 	kem->decaps = crypto_kem_decapsulate;
 	
 	return kem;
 }
-
 OQS_API OQS_STATUS crypto_kem_keygenerate(unsigned char *pk, unsigned char *sk) {
   int ret;
   size_t para[PARASIZE];
-  ret=getRLCEparameters(para,CRYPTO_SCHEME,CRYPTO_PADDING);
+  ret=getRLCEparameters(para,0,CRYPTO_PADDING);
   if (ret<0) return ret;
   unsigned char randomness[para[19]];
   randombytes(randomness, para[19]);
@@ -56,8 +55,8 @@ OQS_API OQS_STATUS crypto_kem_keygenerate(unsigned char *pk, unsigned char *sk) 
   unsigned char nonce[]={0x5e,0x7d,0x69,0xe1,0x87,0x57,0x7b,0x04,0x33,0xee,0xe8,0xea,0xb9,0xf7,0x77,0x31};
   ret=RLCE_key_setup((unsigned char *)randomness, para[19], nonce, 16, RLCEpk, RLCEsk);
   if (ret<0) return ret;
-  size_t sklen=OQS_KEM_RLCE_length_secret_key;
-  size_t pklen=OQS_KEM_RLCE_length_public_key;
+  size_t sklen=para[17];
+  size_t pklen=para[18];
   ret=pk2B(RLCEpk,pk,&pklen);
   ret=sk2B(RLCEsk,sk,&sklen);
   return (OQS_STATUS) ret; 
@@ -65,14 +64,14 @@ OQS_API OQS_STATUS crypto_kem_keygenerate(unsigned char *pk, unsigned char *sk) 
 
 OQS_API OQS_STATUS crypto_kem_encapsulate(unsigned char *ct,unsigned char *ss,const unsigned char *pk) {
   int ret;
-  RLCE_public_key_t RLCEpk=B2pk(pk, OQS_KEM_RLCE_length_public_key);
+  RLCE_public_key_t RLCEpk=B2pk(pk, OQS_KEM_RLCE_l1_length_public_key);
   if (RLCEpk==NULL) return -1;
   unsigned long long RLCEmlen=RLCEpk->para[6];
   unsigned char  randomness[RLCEpk->para[19]];
   randombytes(randomness, RLCEpk->para[19]);
   unsigned char  *message=calloc(RLCEmlen, sizeof(unsigned char)); 
-  memcpy(message, ss, OQS_KEM_RLCE_length_shared_secret);
-  unsigned long long ctlen=OQS_KEM_RLCE_length_ciphertext;
+  memcpy(message, ss, OQS_KEM_RLCE_l1_length_shared_secret);
+  unsigned long long ctlen=OQS_KEM_RLCE_l1_length_ciphertext;
   unsigned char nonce[1];
   ret=RLCE_encrypt(message,(unsigned char *)randomness,RLCEpk->para[19],nonce,0,RLCEpk,ct,&ctlen);
   free(message);
@@ -82,14 +81,164 @@ OQS_API OQS_STATUS crypto_kem_encapsulate(unsigned char *ct,unsigned char *ss,co
 
 OQS_API OQS_STATUS crypto_kem_decapsulate(unsigned char *ss,const unsigned char *ct,const unsigned char *sk) {
   int ret;
-  RLCE_private_key_t RLCEsk=B2sk(sk, OQS_KEM_RLCE_length_secret_key);
+  RLCE_private_key_t RLCEsk=B2sk(sk, OQS_KEM_RLCE_l1_length_secret_key);
   if (RLCEsk==NULL) return (OQS_STATUS) -1;
   unsigned char message[RLCEsk->para[6]];
   unsigned long long mlen=RLCEsk->para[6];
-  ret=RLCE_decrypt((unsigned char *)ct,OQS_KEM_RLCE_length_ciphertext,RLCEsk,message,&mlen);
+  ret=RLCE_decrypt((unsigned char *)ct,OQS_KEM_RLCE_l1_length_ciphertext,RLCEsk,message,&mlen);
   printf("Middle of crypto_kem_decapsulate: ret = %d\n", ret);
   if (ret<0) return (OQS_STATUS) ret;
-  memcpy(ss, message, OQS_KEM_RLCE_length_shared_secret);
+  memcpy(ss, message, OQS_KEM_RLCE_l1_length_shared_secret);
+  return (OQS_STATUS) ret;
+}
+#endif
+
+#if defined(OQS_ENABLE_KEM_rlce_l3)
+
+ OQS_KEM *OQS_KEM_rlce_l3_new() {
+
+	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
+	if (kem == NULL) {
+		return NULL;
+	}
+	kem->method_name = OQS_KEM_alg_RLCE_l3; 
+	kem->alg_version = "OQS_KEM_alg_RLCE_l3"; 
+	
+	kem->claimed_nist_level = 3;
+	kem->ind_cca = true;
+	
+	kem->length_public_key = OQS_KEM_RLCE_l3_length_public_key;
+	kem->length_secret_key = OQS_KEM_RLCE_l3_length_secret_key;
+	kem->length_ciphertext = OQS_KEM_RLCE_l3_length_ciphertext;
+	kem->length_shared_secret = OQS_KEM_RLCE_l3_length_shared_secret;
+	
+	kem->keypair = crypto_kem_keygenerate;
+  kem->encaps = crypto_kem_encapsulate;
+	kem->decaps = crypto_kem_decapsulate;
+	
+	return kem;
+}
+OQS_API OQS_STATUS crypto_kem_keygenerate(unsigned char *pk, unsigned char *sk) {
+  int ret;
+  size_t para[PARASIZE];
+  ret=getRLCEparameters(para,0,CRYPTO_PADDING);
+  if (ret<0) return ret;
+  unsigned char randomness[para[19]];
+  randombytes(randomness, para[19]);
+  RLCE_private_key_t RLCEsk=RLCE_private_key_init(para);
+  RLCE_public_key_t RLCEpk=RLCE_public_key_init(para);
+  unsigned char nonce[]={0x5e,0x7d,0x69,0xe1,0x87,0x57,0x7b,0x04,0x33,0xee,0xe8,0xea,0xb9,0xf7,0x77,0x31};
+  ret=RLCE_key_setup((unsigned char *)randomness, para[19], nonce, 16, RLCEpk, RLCEsk);
+  if (ret<0) return ret;
+  size_t sklen=para[17];
+  size_t pklen=para[18];
+  ret=pk2B(RLCEpk,pk,&pklen);
+  ret=sk2B(RLCEsk,sk,&sklen);
+  return (OQS_STATUS) ret; 
+}
+
+OQS_API OQS_STATUS crypto_kem_encapsulate(unsigned char *ct,unsigned char *ss,const unsigned char *pk) {
+  int ret;
+  RLCE_public_key_t RLCEpk=B2pk(pk, OQS_KEM_RLCE_l3_length_public_key);
+  if (RLCEpk==NULL) return -1;
+  unsigned long long RLCEmlen=RLCEpk->para[6];
+  unsigned char  randomness[RLCEpk->para[19]];
+  randombytes(randomness, RLCEpk->para[19]);
+  unsigned char  *message=calloc(RLCEmlen, sizeof(unsigned char)); 
+  memcpy(message, ss, OQS_KEM_RLCE_l3_length_shared_secret);
+  unsigned long long ctlen=OQS_KEM_RLCE_l3_length_ciphertext;
+  unsigned char nonce[1];
+  ret=RLCE_encrypt(message,(unsigned char *)randomness,RLCEpk->para[19],nonce,0,RLCEpk,ct,&ctlen);
+  free(message);
+  return (OQS_STATUS) ret;
+}
+
+
+OQS_API OQS_STATUS crypto_kem_decapsulate(unsigned char *ss,const unsigned char *ct,const unsigned char *sk) {
+  int ret;
+  RLCE_private_key_t RLCEsk=B2sk(sk, OQS_KEM_RLCE_l3_length_secret_key);
+  if (RLCEsk==NULL) return (OQS_STATUS) -1;
+  unsigned char message[RLCEsk->para[6]];
+  unsigned long long mlen=RLCEsk->para[6];
+  ret=RLCE_decrypt((unsigned char *)ct,OQS_KEM_RLCE_l3_length_ciphertext,RLCEsk,message,&mlen);
+  printf("Middle of crypto_kem_decapsulate: ret = %d\n", ret);
+  if (ret<0) return (OQS_STATUS) ret;
+  memcpy(ss, message, OQS_KEM_RLCE_l3_length_shared_secret);
+  return (OQS_STATUS) ret;
+}
+#endif
+
+#if defined(OQS_ENABLE_KEM_rlce_l5)
+
+ OQS_KEM *OQS_KEM_rlce_l5_new() {
+
+	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
+	if (kem == NULL) {
+		return NULL;
+	}
+	kem->method_name = OQS_KEM_alg_RLCE_l5; 
+	kem->alg_version = "OQS_KEM_alg_RLCE_l5"; 
+	
+	kem->claimed_nist_level = 5;
+	kem->ind_cca = true;
+	
+	kem->length_public_key = OQS_KEM_RLCE_l5_length_public_key;
+	kem->length_secret_key = OQS_KEM_RLCE_l5_length_secret_key;
+	kem->length_ciphertext = OQS_KEM_RLCE_l5_length_ciphertext;
+	kem->length_shared_secret = OQS_KEM_RLCE_l5_length_shared_secret;
+	
+	kem->keypair = crypto_kem_keygenerate;
+  kem->encaps = crypto_kem_encapsulate;
+	kem->decaps = crypto_kem_decapsulate;
+	
+	return kem;
+}
+OQS_API OQS_STATUS crypto_kem_keygenerate(unsigned char *pk, unsigned char *sk) {
+  int ret;
+  size_t para[PARASIZE];
+  ret=getRLCEparameters(para,0,CRYPTO_PADDING);
+  if (ret<0) return ret;
+  unsigned char randomness[para[19]];
+  randombytes(randomness, para[19]);
+  RLCE_private_key_t RLCEsk=RLCE_private_key_init(para);
+  RLCE_public_key_t RLCEpk=RLCE_public_key_init(para);
+  unsigned char nonce[]={0x5e,0x7d,0x69,0xe1,0x87,0x57,0x7b,0x04,0x33,0xee,0xe8,0xea,0xb9,0xf7,0x77,0x31};
+  ret=RLCE_key_setup((unsigned char *)randomness, para[19], nonce, 16, RLCEpk, RLCEsk);
+  if (ret<0) return ret;
+  size_t sklen=para[17];
+  size_t pklen=para[18];
+  ret=pk2B(RLCEpk,pk,&pklen);
+  ret=sk2B(RLCEsk,sk,&sklen);
+  return (OQS_STATUS) ret; 
+}
+
+OQS_API OQS_STATUS crypto_kem_encapsulate(unsigned char *ct,unsigned char *ss,const unsigned char *pk) {
+  int ret;
+  RLCE_public_key_t RLCEpk=B2pk(pk, OQS_KEM_RLCE_l5_length_public_key);
+  if (RLCEpk==NULL) return -1;
+  unsigned long long RLCEmlen=RLCEpk->para[6];
+  unsigned char  randomness[RLCEpk->para[19]];
+  randombytes(randomness, RLCEpk->para[19]);
+  unsigned char  *message=calloc(RLCEmlen, sizeof(unsigned char)); 
+  memcpy(message, ss, OQS_KEM_RLCE_l5_length_shared_secret);
+  unsigned long long ctlen=OQS_KEM_RLCE_l5_length_ciphertext;
+  unsigned char nonce[1];
+  ret=RLCE_encrypt(message,(unsigned char *)randomness,RLCEpk->para[19],nonce,0,RLCEpk,ct,&ctlen);
+  free(message);
+  return (OQS_STATUS) ret;
+}
+
+
+OQS_API OQS_STATUS crypto_kem_decapsulate(unsigned char *ss,const unsigned char *ct,const unsigned char *sk) {
+  int ret;
+  RLCE_private_key_t RLCEsk=B2sk(sk, OQS_KEM_RLCE_l5_length_secret_key);
+  if (RLCEsk==NULL) return (OQS_STATUS) -1;
+  unsigned char message[RLCEsk->para[6]];
+  unsigned long long mlen=RLCEsk->para[6];
+  ret=RLCE_decrypt((unsigned char *)ct,OQS_KEM_RLCE_l5_length_ciphertext,RLCEsk,message,&mlen);
+  printf("Middle of crypto_kem_decapsulate: ret = %d\n", ret);
+  if (ret<0) return (OQS_STATUS) ret;
+  memcpy(ss, message, OQS_KEM_RLCE_l5_length_shared_secret);
   return (OQS_STATUS) ret;
 }
 #endif
