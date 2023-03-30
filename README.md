@@ -18,6 +18,6 @@ and follow the instructions
 6. Liu, Jingang, Yongge Wang, Zongxinag Yi, and Dingyi Pei. "Quantum Resistant Public Key Encryption Scheme polarRLCE." In International Conference on Algebra, Codes and Cryptology, pp. 114-128. Springer, Cham, 2019. <https://link.springer.com/chapter/10.1007/978-3-030-36237-9_7>
 
 # liboqsRLCE
-There are some integrations of RLCE into [OpenSSL](https://github.com/yonggewang/openssl) and [libOQS](https://github.com/open-quantum-safe/liboqs). The examples are: 
+There are some integrations of RLCE into [OpenSSL](https://github.com/yonggewang/openssl) and [libOQS](https://github.com/open-quantum-safe/liboqs) as in [libOQS with RLCE](https://github.com/yonggewang/liboqs). The examples are: 
 * Mugove T. Kangai's 2018 integrated libOQS (https://github.com/mutapa/liboqs) with details (https://github.com/yonggewang/RLCE/blob/master/IntegrateRLCEOpenSSLversion1.0.2.pdf)
 * Wagner, J. (2022). Integrating Random Linear Code Based Encryption Scheme Rlce Algorithm Into Post-quantum Openssl. Unc Charlotte Electronic Theses And Dissertations. (https://ninercommons.charlotte.edu/islandora/object/etd%3A3126)
