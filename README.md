@@ -1,5 +1,7 @@
 # RLCE
 A project to develop post-quantum public encryption scheme
+The RLCEv1 directory contains the original RLCE code base
+The RLCEv1AI directory contains the RLCE code based that was optimized using Antigravity Gemini
 
 # How to: 
 clone the entire RLCEv1 directory. Then run:
