@@ -16,11 +16,20 @@
 int getMSG(uint8_t msg[], unsigned short msglen);
 void hex2char(char * pos, uint8_t hexChar[], int charlen);
 
-uint64_t rdtsc(){
+uint64_t rdtsc(void){
     size_t lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((uint64_t)hi << 32) | lo;
 }
+
+/*
+* on MacOS M1/2/3/ chips use this:
+*
+* #include <mach/mach_time.h>
+* uint64_t rdtsc(void){
+*   return mach_absolute_time();
+}
+*/
 
 void printCPUinfo(void) {
   volatile uint32_t i=0x01234567;
