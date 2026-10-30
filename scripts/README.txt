@@ -12,3 +12,11 @@ RLCE:
   python3 rlce_full.py m n k w k_l grs|random|none seed out.bin ; gcc -O3 -fopenmp -o rank2m rank2m.c ; ./rank2m out.bin m 1135 2
   (1135 = galois' irreducible polynomial for GF(2^10) as an integer, 2 = primitive element; GF(2^11): 2053 2)
 Requires numpy; galois for GF(2^m); gcc with OpenMP.
+
+Jet-degree invariant experiments (Section 9):
+  python3 tuple_force.py            # per-tuple curve-point forcing: jet degree = j+1 (Table 9)
+  python3 jet_jway.py p n0 k0 j k_l d r mode seed out.bin   # j-way mixing key + jet system
+                                     # mode: jway | ctrl_rand | ctrl_block
+  python3 jet_alternant.py p m n deg k_l d r seed           # alternant (subfield subcode) jet system
+Goppa/alternant jet degree Theta(log n) is cited from GIJS 2026/1630, Weis 2026/1984,
+HOVER 2026/1778; not recomputed here.
