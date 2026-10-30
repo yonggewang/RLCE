@@ -20,3 +20,28 @@ Jet-degree invariant experiments (Section 9):
   python3 jet_alternant.py p m n deg k_l d r seed           # alternant (subfield subcode) jet system
 Goppa/alternant jet degree Theta(log n) is cited from GIJS 2026/1630, Weis 2026/1984,
 HOVER 2026/1778; not recomputed here.
+
+Strengthening (this revision):
+  python3 simplex_form.py                 # simplex-form lower bound delta>=j+1 (Lemma 20), j=2..6
+  python3 rlce_recover.py m n k w k_l seed workdir   # full-size RLCE key-structure recovery
+                                          # (needs ./nullspace2m, built from nullspace2m.c)
+  gcc -O3 -march=native -fopenmp -o nullspace2m nullspace2m.c
+
+Forcing law, master count, redundancy law, landscape (this revision, Section 9):
+  python3 forcing_law.py                  # Theorem (forcing law): kernel = monomial count and
+                                          # Q forced iff j r > (j-1) d, all 210 triples j<=6, d<=8
+  python3 jet_mask.py p k1 k2 widths k_l d r mode seed out.bin ; ./rankp out.bin p
+        widths "2x50" = 50 tuples of width 2; "1x40,2x20" = RLCE-like; "3x12" = width 3
+        mode: mask (random mixing coefficients) | uvw (lambda = (1,-1), i.e. UVW1)
+              | uuvgen | uuvplain (Marquez-Corbella--Tillich (U|U+V) with RS U and V, common support)
+              | uuvperm (same, V on a permuted support) | ctrl_rand
+        prints the survival profile and the master-count prediction
+        sum_tuples (j' r - (j'-1) d)^+ - d(k2-1) - 1 and the hierarchy closed form d(rho+1)-R-k_l-1
+    examples (Sect. 9.3, 9.5):
+      jet_mask.py 337 188 148 2x336 27 2 1 uvw 11 x.bin    # ePrint 128b, shortened square: excess 14
+      jet_mask.py 101 16 3 3x12 19 4 3 mask 3 x.bin        # width 3 at (4,3): 630 generic + 3
+      jet_mask.py 101 10 10 2x20 20 4 3 uvw 5 x.bin        # tiny-U UVW at (4,3): 780 generic + 3
+      jet_mask.py 101 35 15 2x50 11 2 1 uuvgen 2 x.bin     # (U|U+V)-RS scroll: square dim 3(k_l-1)
+  python3 rnc_jets.py                     # Veronese threshold (Remark: exactness): jets at m points
+                                          # of a rational normal curve saturate at 2(k2-1)^2+2
+  python3 grs_rank1.py p n k k_l d r seed out.bin ; ./rankp out.bin p   # BBCRS m=1: GRS + rank-1
