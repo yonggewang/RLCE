@@ -1,3 +1,5 @@
+# RLCE is broken: check /scripts
+
 # RLCE
 A project to develop post-quantum public encryption scheme
 The RLCEv1 directory contains the original RLCE code base
