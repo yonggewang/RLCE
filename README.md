@@ -1,4 +1,4 @@
-# GRS-RLCE and HermitianRLCE are broken by cubic jets (PolarRLCE remains secure)
+# RLCE is essentially broken by cubic jets
 find the scripts at scripts folder
 
 # RLCE
