@@ -1,4 +1,4 @@
-# RLCE with GRS code is broken
+# GRS-RLCE and HermitianRLCE are broken by cubic jets (PolarRLCE remains secure)
 find the scripts at scripts folder
 
 # RLCE
