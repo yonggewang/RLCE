@@ -45,3 +45,29 @@ Forcing law, master count, redundancy law, landscape (this revision, Section 9):
   python3 rnc_jets.py                     # Veronese threshold (Remark: exactness): jets at m points
                                           # of a rational normal curve saturate at 2(k2-1)^2+2
   python3 grs_rank1.py p n k k_l d r seed out.bin ; ./rankp out.bin p   # BBCRS m=1: GRS + rank-1
+
+Dual leaks and the limits of masking (Section "Beyond the Curve"):
+  Requires numpy, scipy; CryptographicEstimators for the cost columns.
+  polar.py                 binary polar codes over F2, RLCE transform, rank/nullspace over F2
+  polar_reliab.py          underflow-free BEC(1/2) polar construction (logit domain); d, d_perp
+                           (agrees with 1500-digit arithmetic at m=12; the float recursion does not)
+  minweight_count.py       number of minimum-weight words of a polar code and its dual
+                           (Bardet et al. formula, checked against enumeration in 94 codes)
+  dual_distance.py         d and d_perp formulas vs exact enumeration; primal/dual vs GV table
+  polar_invariants.py t k w seed      polarRLCE primal side: minimum distance and affine survivors
+  family_invariants.py ldpc_rlce|uvw  LDPC-RLCE dual leak; UVW matched-pair subspace (polar/LDPC)
+  nogo_analysis.py origsets|uvw|polar|ldpc   dual-leak verdicts and escape searches
+  hirate_polarrlce.py [lambda]        high-rate polarRLCE: multiplicity, leak law, Prange costs
+  talvardy.py [m]                     Tal-Vardy degrading construction: rigorous upper bounds on the
+                                      SC failure probability of a polar code on BSC(p) (Table: SC bounds)
+  window_search.py lambda [top]       the illusory high-rate window (t = t_max/2): Prange floor, Stern
+                                      re-pricing of the cheapest points
+  polar_closure.py m dfr_exp lambda   Prange necessary condition over (p, R, w) with certified failure
+                                      bound <= 2^-dfr_exp (Proposition: no secure polarRLCE parameters)
+  polar_closure_stern.py lambda dfr_exp "p,R ..." [m]   Stern-family re-pricing of the Prange survivors
+  polar_closure_fast.py lambda closure.out m            fast Stern exclusion of Prange survivors (dual at
+                                                        Prange's largest w; Stern alone, an upper bound)
+  polar_closure_stern2.py lambda closure.out m [i n]    full Stern-only re-pricing of all Prange survivors
+                                                        (shard i of n); Table: polarRLCE at n=32768
+  rm_rlce2.py [lambda]                Reed-Muller codes under RLCE: dual-leak cost with multiplicity,
+                                      t_req for message recovery, t_BD and t_max (Table: RM under RLCE)
