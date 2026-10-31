@@ -1,4 +1,5 @@
-# RLCE is broken: check /scripts
+# RLCE with GRS code is broken
+find the scripts at scripts folder
 
 # RLCE
 A project to develop post-quantum public encryption scheme
