@@ -1,0 +1,9 @@
+[      6s] R key: m=10 n=846 k=732 w=114 N=960 t=57 k_l=39 seed=1; predicted excess 77
+[      6s] resumed: 183 rounds done, 114 pairs known
+[      6s] pairing complete after 183 rounds: 114 pairs
+[      7s] [truth] pairs correct 114/114, hidden GRS directions correct 114/114
+[      8s] fold matrix F (732, 846), rank 732
+[     42s] Sidelnikov-Shestakov done: support of 846 distinct points, multipliers nonzero: True
+[     45s] rowsp F == GRS(alpha,beta): True (rank of stacked generators 732)
+[     52s] fresh ciphertext decrypted; recovered message equals plaintext: True; re-encryption error weight 57 (expected 57)
+SUMMARY {"m": 10, "n": 846, "k": 732, "w": 114, "kl": 39, "t": 57, "seed": 1, "rounds": 183, "kernels": [77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77], "pairs": 114, "decrypt_ok": true, "seconds": 52}
