@@ -1,0 +1,204 @@
+[      0s] STRICT MODE: public key (732, 960) and ciphertext read from key_r1s; no secret-key access; predicted excess 77
+[      0s] round 1: known pairs 0/114
+[      5s]   jet system 10413x10660; left kernel...
+[    285s]   A=10660x10413 rank=10336 leftkernel=77 reduce=279.0s
+[    285s]   kernel 77 (excess 77); rank-1 blocks 14; pairs this round 7 (new 7)
+[    285s] round 2: known pairs 7/114
+[    288s]   jet system 10413x10660; left kernel...
+[    567s]   A=10660x10413 rank=10336 leftkernel=77 reduce=277.7s
+[    567s]   kernel 77 (excess 77); rank-1 blocks 12; pairs this round 6 (new 6)
+[    567s] pairing complete after 2 rounds: 13 pairs
+Traceback (most recent call last):
+  File "/root/work/pkg/rlce_e2e.py", line 255, in <module>
+    main()
+    ~~~~^^
+  File "/root/work/pkg/rlce_e2e.py", line 223, in main
+    assert len(singles) == n - w, (len(singles), n - w)
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (934, 732)
+STRICT MODE: public key read from key_r1s; no secret-key access
+[0s] loaded 13 known pairs; unknown 101; square-code endgame k_l=21
+[      0s] STRICT MODE: public key (732, 960) and ciphertext read from key_r1s; no secret-key access; predicted excess 77
+[      0s] resumed: 2 rounds done, 13 pairs known
+[      0s] round 3: known pairs 13/114
+[      5s]   jet system 10413x10660; left kernel...
+[    287s]   A=10660x10413 rank=10336 leftkernel=77 reduce=281.3s
+[    287s]   kernel 77 (excess 77); rank-1 blocks 12; pairs this round 6 (new 6)
+[    287s] round 4: known pairs 19/114
+[    291s]   jet system 10413x10660; left kernel...
+[    575s]   A=10660x10413 rank=10336 leftkernel=77 reduce=282.6s
+[    575s]   kernel 77 (excess 77); rank-1 blocks 8; pairs this round 4 (new 4)
+[    575s] stopping after 4 rounds with 23/114 pairs (state saved in run_r1s/state.json); square-code window: w'=91 must be < n-k-k_l'+1 for the chosen k_l'
+STRICT MODE: public key read from key_r1s; no secret-key access
+[0s] loaded 23 known pairs; unknown 91; square-code endgame k_l=21
+    pair 133,764 rho=967
+    pair 212,520 rho=777
+    pair 389,626 rho=534
+    pair 464,786 rho=372
+    pair 485,693 rho=585
+[10s] round 1: n'=226 Veronese rank 223 (cols 231), off-curve 10, exposed -1, new 5, known 28/114
+    pair 180,402 rho=831
+    pair 271,919 rho=196
+    pair 567,752 rho=59
+[14s] round 2: n'=221 Veronese rank 213 (cols 231), off-curve 6, exposed -1, new 3, known 31/114
+    pair 5,703 rho=873
+    pair 367,915 rho=647
+    pair 441,891 rho=289
+[19s] round 3: n'=218 Veronese rank 207 (cols 231), off-curve 6, exposed -1, new 3, known 34/114
+    pair 169,676 rho=631
+    pair 356,760 rho=757
+    pair 671,855 rho=315
+[23s] round 4: n'=215 Veronese rank 201 (cols 231), off-curve 6, exposed -1, new 3, known 37/114
+    pair 3,951 rho=374
+    pair 123,818 rho=831
+    pair 348,593 rho=951
+[27s] round 5: n'=212 Veronese rank 195 (cols 231), off-curve 6, exposed -1, new 3, known 40/114
+    pair 16,191 rho=126
+    pair 167,416 rho=1004
+    pair 359,400 rho=83
+    pair 496,906 rho=215
+    pair 515,524 rho=618
+[35s] round 6: n'=209 Veronese rank 189 (cols 231), off-curve 10, exposed -1, new 5, known 45/114
+    pair 284,510 rho=605
+    pair 292,332 rho=484
+    pair 437,564 rho=626
+[40s] round 7: n'=204 Veronese rank 179 (cols 231), off-curve 6, exposed -1, new 3, known 48/114
+    pair 686,734 rho=840
+[42s] round 8: n'=201 Veronese rank 173 (cols 231), off-curve 2, exposed -1, new 1, known 49/114
+    pair 99,372 rho=974
+    pair 225,689 rho=706
+    pair 312,384 rho=305
+    pair 587,724 rho=912
+[49s] round 9: n'=200 Veronese rank 171 (cols 231), off-curve 8, exposed -1, new 4, known 53/114
+    pair 116,677 rho=434
+    pair 314,576 rho=363
+    pair 335,418 rho=535
+    pair 411,590 rho=69
+[54s] round 10: n'=196 Veronese rank 163 (cols 231), off-curve 8, exposed -1, new 4, known 57/114
+    pair 170,628 rho=14
+    pair 203,240 rho=496
+    pair 371,843 rho=189
+[59s] round 11: n'=192 Veronese rank 155 (cols 231), off-curve 6, exposed -1, new 3, known 60/114
+    pair 318,747 rho=724
+    pair 351,385 rho=559
+[63s] round 12: n'=189 Veronese rank 149 (cols 231), off-curve 4, exposed -1, new 2, known 62/114
+    pair 49,687 rho=163
+    pair 190,834 rho=289
+[66s] round 13: n'=187 Veronese rank 145 (cols 231), off-curve 4, exposed -1, new 2, known 64/114
+    pair 56,304 rho=662
+    pair 94,617 rho=863
+    pair 403,711 rho=876
+    pair 682,802 rho=732
+    pair 813,846 rho=621
+[74s] round 14: n'=185 Veronese rank 141 (cols 231), off-curve 10, exposed -1, new 5, known 69/114
+    pair 74,504 rho=111
+    pair 217,577 rho=169
+    pair 321,944 rho=889
+[78s] round 15: n'=180 Veronese rank 131 (cols 231), off-curve 6, exposed -1, new 3, known 72/114
+    pair 309,374 rho=453
+    pair 322,529 rho=420
+    pair 422,879 rho=857
+[83s] round 16: n'=177 Veronese rank 125 (cols 231), off-curve 6, exposed -1, new 3, known 75/114
+    pair 607,942 rho=1012
+[85s] round 17: n'=174 Veronese rank 119 (cols 231), off-curve 2, exposed -1, new 1, known 76/114
+    pair 105,531 rho=355
+[88s] round 18: n'=173 Veronese rank 117 (cols 231), off-curve 2, exposed -1, new 1, known 77/114
+    pair 36,644 rho=393
+[91s] round 19: n'=172 Veronese rank 115 (cols 231), off-curve 2, exposed -1, new 1, known 78/114
+    pair 23,828 rho=745
+    pair 301,584 rho=196
+    pair 415,754 rho=58
+[96s] round 20: n'=171 Veronese rank 113 (cols 231), off-curve 6, exposed -1, new 3, known 81/114
+    pair 159,868 rho=774
+    pair 501,782 rho=193
+[99s] round 21: n'=168 Veronese rank 107 (cols 231), off-curve 4, exposed -1, new 2, known 83/114
+    pair 142,478 rho=515
+[102s] round 22: n'=166 Veronese rank 103 (cols 231), off-curve 2, exposed -1, new 1, known 84/114
+    pair 337,755 rho=317
+[105s] round 23: n'=165 Veronese rank 101 (cols 231), off-curve 2, exposed -1, new 1, known 85/114
+    pair 67,519 rho=469
+    pair 158,597 rho=573
+[108s] round 24: n'=164 Veronese rank 99 (cols 231), off-curve 4, exposed -1, new 2, known 87/114
+    pair 234,817 rho=128
+    pair 777,934 rho=900
+[114s] round 26: n'=162 Veronese rank 95 (cols 231), off-curve 4, exposed -1, new 2, known 89/114
+    pair 214,955 rho=682
+    pair 221,445 rho=794
+[117s] round 27: n'=160 Veronese rank 91 (cols 231), off-curve 4, exposed -1, new 2, known 91/114
+    pair 85,770 rho=112
+[126s] round 30: n'=158 Veronese rank 87 (cols 231), off-curve 2, exposed -1, new 1, known 92/114
+    pair 86,302 rho=39
+[128s] round 31: n'=157 Veronese rank 85 (cols 231), off-curve 2, exposed -1, new 1, known 93/114
+    pair 280,401 rho=203
+[131s] round 32: n'=156 Veronese rank 83 (cols 231), off-curve 2, exposed -1, new 1, known 94/114
+    pair 307,363 rho=961
+[139s] round 35: n'=155 Veronese rank 81 (cols 231), off-curve 2, exposed -1, new 1, known 95/114
+    pair 331,446 rho=33
+[142s] round 36: n'=154 Veronese rank 79 (cols 231), off-curve 2, exposed -1, new 1, known 96/114
+    pair 308,433 rho=628
+    pair 667,695 rho=325
+[148s] round 38: n'=153 Veronese rank 77 (cols 231), off-curve 4, exposed -1, new 2, known 98/114
+    pair 451,746 rho=917
+[153s] round 40: n'=151 Veronese rank 73 (cols 231), off-curve 2, exposed -1, new 1, known 99/114
+    pair 207,293 rho=40
+[156s] round 41: n'=150 Veronese rank 71 (cols 231), off-curve 2, exposed -1, new 1, known 100/114
+    pair 112,763 rho=256
+    pair 439,599 rho=6
+[160s] round 42: n'=149 Veronese rank 69 (cols 231), off-curve 4, exposed -1, new 2, known 102/114
+    pair 173,946 rho=642
+[168s] round 45: n'=147 Veronese rank 65 (cols 231), off-curve 2, exposed -1, new 1, known 103/114
+[181s] round 50: n'=146 Veronese rank 63 (cols 231), off-curve 0, exposed -1, new 0, known 103/114
+    pair 364,369 rho=663
+[187s] round 52: n'=146 Veronese rank 63 (cols 231), off-curve 2, exposed -1, new 1, known 104/114
+    pair 78,655 rho=764
+[205s] round 59: n'=145 Veronese rank 61 (cols 231), off-curve 2, exposed -1, new 1, known 105/114
+    pair 421,941 rho=14
+[221s] round 65: n'=144 Veronese rank 59 (cols 231), off-curve 2, exposed -1, new 1, known 106/114
+    pair 65,77 rho=321
+    pair 484,698 rho=6
+[232s] round 69: n'=143 Veronese rank 57 (cols 231), off-curve 4, exposed -1, new 2, known 108/114
+    pair 798,902 rho=138
+[253s] round 77: n'=141 Veronese rank 53 (cols 231), off-curve 2, exposed -1, new 1, known 109/114
+    pair 165,898 rho=76
+[256s] round 78: n'=140 Veronese rank 51 (cols 231), off-curve 2, exposed -1, new 1, known 110/114
+    pair 120,690 rho=487
+[258s] round 79: n'=139 Veronese rank 49 (cols 231), off-curve 2, exposed -1, new 1, known 111/114
+    pair 72,568 rho=670
+[269s] round 83: n'=138 Veronese rank 47 (cols 231), off-curve 2, exposed -1, new 1, known 112/114
+[313s] round 100: n'=137 Veronese rank 45 (cols 231), off-curve 0, exposed -1, new 0, known 112/114
+    pair 73,201 rho=830
+[336s] round 109: n'=137 Veronese rank 45 (cols 231), off-curve 2, exposed -1, new 1, known 113/114
+    pair 127,633 rho=1021
+[342s] round 111: n'=136 Veronese rank 43 (cols 231), off-curve 2, exposed -1, new 1, known 114/114
+[342s] done: 114 pairs after 111 square-code rounds
+SQSUMMARY {"sq_rounds": 111, "pairs": 114, "seconds": 342}
+[      0s] STRICT MODE: public key (732, 960) and ciphertext read from key_r1s; no secret-key access; predicted excess 77
+[      0s] resumed: 115 rounds done, 114 pairs known
+[      0s] pairing complete after 115 rounds: 114 pairs
+[      2s] fold matrix F (732, 846), rank 732
+Traceback (most recent call last):
+  File "/root/work/pkg/rlce_e2e.py", line 259, in <module>
+    main()
+    ~~~~^^
+  File "/root/work/pkg/rlce_e2e.py", line 232, in main
+    alpha, beta, piv = sidelnikov_shestakov(GF, F)
+                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/root/work/pkg/rlce_e2e.py", line 111, in sidelnikov_shestakov
+    alpha[piv[i]] = v / u
+                    ~~^~~
+  File "/usr/local/lib/python3.13/site-packages/galois/_domains/_array.py", line 485, in __truediv__
+    return super().__truediv__(other)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/galois/_domains/_ufunc.py", line 689, in __array_ufunc__
+    return getattr(field, field._OVERRIDDEN_UFUNCS[ufunc])(ufunc, method, inputs, kwargs, meta)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/galois/_domains/_ufunc.py", line 436, in __call__
+    inputs[1] = self.field._reciprocal.ufunc(inputs[1])
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/numba/np/ufunc/dufunc.py", line 303, in __call__
+    return super().__call__(*args, **kws)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/galois/_domains/_lookup.py", line 195, in lookup
+    raise ZeroDivisionError("Cannot compute the multiplicative inverse of 0 in a Galois field.")
+ZeroDivisionError: Cannot compute the multiplicative inverse of 0 in a Galois field.
+EXIT

@@ -2,6 +2,8 @@ End-to-end long-key RLCE key recovery (Sect. "End-to-end key recovery of long-ke
 ======================================================================================================
 
 Files (to be placed in RLCE/scripts next to rlce_recover.py, rank2m.c, nullspace2m.c):
+  rlce_keygen_export.py  key generation for STRICT MODE: writes pk.npy and ct.npy, and the secret key and
+                       plaintext under outdir/secret/, which the attack scripts never open.
   rlce_e2e.py          jet stage (adaptive shortening rounds, read-off, ratios), fold, Sidelnikov-Shestakov
                        over GF(2^m), Berlekamp-Welch decryption of a fresh ciphertext. Resumable via workdir/state.json.
   rlce_endgame_sq.py   square-code stage on the folded code (CLT's regime once w' < n-k-k_l+1):
@@ -9,12 +11,26 @@ Files (to be placed in RLCE/scripts next to rlce_recover.py, rank2m.c, nullspace
   sim_rounds.py        survival-model simulation of the number of jet rounds (random vs adaptive shortening).
   logs_r1/             logs of the run reported in Table "End-to-end recovery" (R-1, key seed 1).
 
-Dependencies: python3 >= 3.10, numpy, galois 0.4.11 (pulls numba), gcc with OpenMP.
+Dependencies: see requirements.txt (pinned: galois==0.4.11, cryptographic-estimators==2.1.1 for the cost scripts).
   pip install galois
   gcc -O3 -march=native -fopenmp -o nullspace2m nullspace2m.c
 
-The secret key is generated from the key seed and used ONLY to score rounds ([truth] lines); nothing from it
-enters the recovery, which reads the public key G alone.
+Two modes.
+  Default (scoring) mode: the script generates the key from the key seed and uses the secret key ONLY to print
+  [truth] scoring lines; nothing from it enters the recovery, which reads the public key G alone.
+  STRICT mode (PKDIR=<dir>): the attack reads <dir>/pk.npy and <dir>/ct.npy written by rlce_keygen_export.py
+  and has no secret-key access at all (no [truth] lines are printed); it writes the decrypted message to
+  workdir/recovered_msg.npy, which is compared with <dir>/secret/msg.npy by a separate command afterwards.
+  The key seed argument of rlce_e2e.py is then ignored for the key (it only seeds the shortening choices).
+
+  Strict-mode reproduction of the headline break (new key, seed 2; ~25 min on two cores):
+    python3 rlce_keygen_export.py 10 846 732 114 57 2 key_r1s
+    PKDIR=key_r1s python3 rlce_e2e.py 10 846 732 114 39 57 77 run_r1s 2            # two jet rounds
+    PKDIR=key_r1s SQSEED=77 python3 rlce_endgame_sq.py 10 846 732 114 21 1 run_r1s 1500 run_r1s/state.json
+    cp run_r1s/state_sq.json run_r1s/state.json
+    PKDIR=key_r1s python3 rlce_e2e.py 10 846 732 114 39 57 77 run_r1s                 # fold, S-S, decrypt
+    python3 -c "import numpy as np; print(np.array_equal(np.load('run_r1s/recovered_msg.npy'), np.load('key_r1s/secret/msg.npy')))"
+  Log of this run: logs_r1/strict_run_r1s.log.
 
 Reproducing the R-1 run (n=846, k=732, w=114, t=57, GF(2^10)), two cores:
 

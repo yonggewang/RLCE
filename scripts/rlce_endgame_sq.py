@@ -23,12 +23,17 @@ def main():
     m, n, k, w, kl = map(int, sys.argv[1:6]); seed = int(sys.argv[6]); wd = sys.argv[7]
     max_rounds = int(sys.argv[8]) if len(sys.argv) > 8 else 2000
     GF = galois.GF(2 ** m); rng = np.random.default_rng(seed); t0 = time.time()
-    G, sk = keygen(GF, n, k, w, rng); N = n + w; l = k - kl
+    pkdir = os.environ.get('PKDIR')
+    if pkdir:
+        G = GF(np.load(os.path.join(pkdir, 'pk.npy'))); sk = None; N = G.shape[1]; l = k - kl
+        print(f"STRICT MODE: public key read from {pkdir}; no secret-key access", flush=True)
+    else:
+        G, sk = keygen(GF, n, k, w, rng); N = n + w; l = k - kl
     rng2 = np.random.default_rng(int(os.environ.get('SQSEED', seed + 1000)))
     sfile = sys.argv[9] if len(sys.argv) > 9 else os.path.join(wd, 'state.json')
     st = json.load(open(sfile))
     known = {frozenset((i, j)): (i, j, rho) for (i, j, rho) in st['known']}
-    tp = sk['true_pair']
+    tp = sk['true_pair'] if sk else {}
     print(f"[{time.time()-t0:.0f}s] loaded {len(known)} known pairs; unknown {w-len(known)}; square-code endgame k_l={kl}", flush=True)
     rounds = 0; sq_rounds = 0
     while len(known) < w and rounds < max_rounds:
@@ -51,7 +56,7 @@ def main():
         # true exposure for scoring
         unknown_cols = [c for c in range(npts) if labels[keep[c]][0] == 'c']
         surv_unknown = set(labels[keep[c]][1] for c in range(npts) if labels[keep[c]][0] == 'c')
-        exposed = sum(1 for pr in tp if pr not in known and pr <= surv_unknown)
+        exposed = sum(1 for pr in tp if pr not in known and pr <= surv_unknown) if sk else -1
         new = 0
         if off:
             curve_rows = [r for r in range(npts) if r not in set(off)]
@@ -70,15 +75,15 @@ def main():
                 key = frozenset((la[1], lb[1]))
                 if key in known: continue
                 known[key] = (la[1], lb[1], rho); new += 1
-                truth = key in tp
-                print(f"    pair {la[1]},{lb[1]} rho={rho} [truth: {'correct' if truth else 'WRONG'}]", flush=True)
+                truth = f" [truth: {'correct' if key in tp else 'WRONG'}]" if sk else ""
+                print(f"    pair {la[1]},{lb[1]} rho={rho}{truth}", flush=True)
         if new or rounds % 50 == 0:
             print(f"[{time.time()-t0:.0f}s] round {rounds}: n'={npts} Veronese rank {D} (cols {V.shape[1]}), off-curve {len(off)}, exposed {exposed}, new {new}, known {len(known)}/{w}", flush=True)
         json.dump({'rounds': st['rounds'] + rounds, 'jet_rounds': st['rounds'], 'sq_rounds': rounds,
                    'known': [list(v) for v in known.values()], 'kernels': st.get('kernels', []), 'surv': st.get('surv', [])},
                   open(os.path.join(wd, 'state_sq.json'), 'w'))
-    ok = sum(1 for p in known if p in tp)
-    print(f"[{time.time()-t0:.0f}s] done: {len(known)} pairs after {rounds} square-code rounds; [truth] correct {ok}/{len(known)}", flush=True)
+    truth = f"; [truth] correct {sum(1 for p in known if p in tp)}/{len(known)}" if sk else ""
+    print(f"[{time.time()-t0:.0f}s] done: {len(known)} pairs after {rounds} square-code rounds{truth}", flush=True)
     print("SQSUMMARY", json.dumps(dict(sq_rounds=rounds, pairs=len(known), seconds=round(time.time()-t0))))
 
 if __name__ == '__main__': main()

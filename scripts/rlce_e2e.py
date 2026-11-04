@@ -98,17 +98,21 @@ def sidelnikov_shestakov(GF, F):
         aJ = cG / den
         vals = [int(v) for v in np.array(aJ)]
         if 0 in vals or 1 in vals or len(set(vals)) != len(vals): continue
-        alpha = GF.Zeros(n); alpha[piv[0]] = 0; alpha[piv[1]] = 1
-        for j, v in zip(J, vals): alpha[j] = v
-        break
+        cand = GF.Zeros(n); cand[piv[0]] = 0; cand[piv[1]] = 1
+        for j, v in zip(J, vals): cand[j] = v
+        # remaining pivot rows: A[0,j]/A[i,j] = c_i (alpha_j - alpha_i)/alpha_j => (A0j/Aij) alpha_j = u alpha_j + v, u=c_i, v=c_i alpha_i
+        ok = True
+        for i in range(2, k):
+            lhs = (GF(np.array(A[0, J])) / GF(np.array(A[i, J]))) * cand[J]
+            Mx = GF(np.column_stack([np.array(cand[J]), np.ones(len(J), dtype=int)]))
+            sol = np.linalg.solve(Mx[:2], lhs[:2]); u, v = sol[0], sol[1]
+            assert np.array_equal(np.array(Mx @ sol), np.array(lhs)), f"row {i} inconsistent with GRS structure"
+            if int(u) == 0: ok = False; break        # this Moebius parameter sends alpha_i to infinity: try the next
+            cand[piv[i]] = v / u
+        if not ok: continue
+        if len(set(int(a) for a in cand)) != n: continue
+        alpha = cand; break
     assert alpha is not None, "no admissible Moebius parameter"
-    # remaining pivot rows: A[0,j]/A[i,j] = c_i (alpha_j - alpha_i)/alpha_j  =>  (A0j/Aij) alpha_j = u alpha_j + v,  u=c_i, v=c_i alpha_i (char 2: -c_i alpha_i)
-    for i in range(2, k):
-        lhs = (GF(np.array(A[0, J])) / GF(np.array(A[i, J]))) * alpha[J]
-        Mx = GF(np.column_stack([np.array(alpha[J]), np.ones(len(J), dtype=int)]))
-        sol = np.linalg.solve(Mx[:2], lhs[:2]); u, v = sol[0], sol[1]
-        assert np.array_equal(np.array(Mx @ sol), np.array(lhs)), f"row {i} inconsistent with GRS structure"
-        alpha[piv[i]] = v / u
     assert len(set(int(a) for a in alpha)) == n, "support not distinct"
     # multipliers via the dual: sum_j f_j alpha_j^i beta'_j = 0 for i < n-k, all rows f
     rows_needed = min(k, (n - 1) // (n - k) + 2)
@@ -155,12 +159,18 @@ def main():
     m, n, k, w, kl, t = map(int, sys.argv[1:7]); seed = int(sys.argv[7]); wd = sys.argv[8]
     max_rounds = int(sys.argv[9]) if len(sys.argv) > 9 else 200
     os.makedirs(wd, exist_ok=True); GF = galois.GF(2 ** m); rng = np.random.default_rng(seed); t0 = time.time()
-    G, sk = keygen(GF, n, k, w, rng); N = n + w; l = k - kl
-    log(t0, f"R key: m={m} n={n} k={k} w={w} N={N} t={t} k_l={kl} seed={seed}; predicted excess {2*(n-k)-w-kl+2}")
-    # fresh ciphertext (public operation)
-    msg = GF(rng.integers(0, GF.order, size=k)); e = GF.Zeros(N)
-    epos = rng.choice(N, size=t, replace=False); e[epos] = GF(rng.integers(1, GF.order, size=t))
-    ct = msg @ G + e
+    pkdir = os.environ.get('PKDIR')
+    if pkdir:   # strict mode: public key and ciphertext from files written by rlce_keygen_export.py; no secret key
+        G = GF(np.load(os.path.join(pkdir, 'pk.npy'))); ct = GF(np.load(os.path.join(pkdir, 'ct.npy'))); sk = None; msg = None
+        N = G.shape[1]; l = k - kl
+        log(t0, f"STRICT MODE: public key {G.shape} and ciphertext read from {pkdir}; no secret-key access; predicted excess {2*(n-k)-w-kl+2}")
+    else:
+        G, sk = keygen(GF, n, k, w, rng); N = n + w; l = k - kl
+        log(t0, f"R key: m={m} n={n} k={k} w={w} N={N} t={t} k_l={kl} seed={seed}; predicted excess {2*(n-k)-w-kl+2}")
+        # fresh ciphertext (public operation)
+        msg = GF(rng.integers(0, GF.order, size=k)); e = GF.Zeros(N)
+        epos = rng.choice(N, size=t, replace=False); e[epos] = GF(rng.integers(1, GF.order, size=t))
+        ct = msg @ G + e
     # --- adaptive rounds ---
     known = {}; surv = np.zeros(N, int); everr1 = np.zeros(N, bool); rounds = 0; total_ker = []
     sf = os.path.join(wd, 'state.json')
@@ -169,7 +179,7 @@ def main():
         for (i, j, rho) in st['known']: known[frozenset((i, j))] = (i, j, rho); everr1[i] = everr1[j] = True
         surv = np.array(st.get('surv', surv.tolist()))
         log(t0, f"resumed: {rounds} rounds done, {len(known)} pairs known")
-    tp = sk['true_pair']
+    tp = sk['true_pair'] if sk else {}
     while len(known) < w and rounds < max_rounds:
         rounds += 1
         if rounds == 1: Z = set(rng.permutation(N)[:l].tolist())
@@ -193,20 +203,27 @@ def main():
         for key, val in pairs.items():
             everr1[val[0]] = True; everr1[val[1]] = True
             if key not in known: known[key] = val; new += 1
-        both = sum(1 for pr in tp if pr <= set(keep)); wrong = sum(1 for pr in pairs if pr not in tp)
-        log(t0, f"  kernel {ker} (excess {ker - (len(keep)*kl - cubic_cols(kl)) if len(keep)*kl>cubic_cols(kl) else ker}); rank-1 blocks {nr1}; pairs this round {len(pairs)} (new {new}); [truth] both-surviving true pairs {both}, wrong pairs {wrong}")
+        truth = ""
+        if sk:
+            both = sum(1 for pr in tp if pr <= set(keep)); wrong = sum(1 for pr in pairs if pr not in tp)
+            truth = f"; [truth] both-surviving true pairs {both}, wrong pairs {wrong}"
+        log(t0, f"  kernel {ker} (excess {ker - (len(keep)*kl - cubic_cols(kl)) if len(keep)*kl>cubic_cols(kl) else ker}); rank-1 blocks {nr1}; pairs this round {len(pairs)} (new {new}){truth}")
         total_ker.append(ker)
         json.dump({'rounds': rounds, 'known': [list(v) for v in known.values()], 'kernels': total_ker,
                    'surv': surv.tolist()}, open(sf, 'w'))
+    if len(known) < w:
+        log(t0, f"stopping after {rounds} rounds with {len(known)}/{w} pairs (state saved in {sf}); "
+                f"square-code window: w'={w-len(known)} must be < n-k-k_l'+1 for the chosen k_l'")
+        return
     log(t0, f"pairing complete after {rounds} rounds: {len(known)} pairs")
     # [truth] ratios
     ok = 0
-    for (i, j, rho) in known.values():
+    for (i, j, rho) in (known.values() if sk else []):
         if frozenset((i, j)) not in tp: continue
         h = G[:, i] + GF(rho) * G[:, j]; idx = tp[frozenset((i, j))]
         true_h = sk['S'] @ sk['Gs'][:, n - w + idx]
         if int(np.linalg.matrix_rank(GF(np.array([np.array(h), np.array(true_h)])))) == 1: ok += 1
-    log(t0, f"[truth] pairs correct {sum(1 for p in known if p in tp)}/{len(known)}, hidden GRS directions correct {ok}/{len(known)}")
+    if sk: log(t0, f"[truth] pairs correct {sum(1 for p in known if p in tp)}/{len(known)}, hidden GRS directions correct {ok}/{len(known)}")
     # --- fold ---
     paired = set();
     for (i, j, _) in known.values(): paired |= {i, j}
@@ -228,11 +245,17 @@ def main():
     if cw is None: log(t0, "DECODE FAILED"); return
     # m from cw = m F : use pivot columns of F
     Fp = F[:, piv]; m_rec = np.linalg.solve(Fp.T, cw[piv])
-    log(t0, f"fresh ciphertext decrypted; recovered message equals plaintext: {bool(np.array_equal(np.array(m_rec), np.array(msg)))}; "
-            f"re-encryption error weight {int(np.count_nonzero(np.array(m_rec @ G + ct)))} (expected {t})")
-    print("SUMMARY", json.dumps(dict(m=m, n=n, k=k, w=w, kl=kl, t=t, seed=seed, rounds=rounds, kernels=total_ker,
-                                       pairs=len(known), decrypt_ok=bool(np.array_equal(np.array(m_rec), np.array(msg))),
-                                       seconds=round(time.time() - t0))))
+    errw = int(np.count_nonzero(np.array(m_rec @ G + ct)))
+    np.save(os.path.join(wd, 'recovered_msg.npy'), np.array(m_rec, dtype=np.int64))
+    if msg is not None:
+        ok = bool(np.array_equal(np.array(m_rec), np.array(msg)))
+        log(t0, f"fresh ciphertext decrypted; recovered message equals plaintext: {ok}; re-encryption error weight {errw} (expected {t})")
+    else:
+        ok = errw == t
+        log(t0, f"fresh ciphertext decrypted; recovered message written to {wd}/recovered_msg.npy; c - mG has weight {errw} (expected {t}); "
+                f"compare with secret/msg.npy separately")
+    print("SUMMARY", json.dumps(dict(m=m, n=n, k=k, w=w, kl=kl, t=t, seed=seed, strict=bool(pkdir), rounds=rounds, kernels=total_ker,
+                                       pairs=len(known), error_weight=errw, decrypt_ok=ok, seconds=round(time.time() - t0))))
 
 def cubic_cols(kl): return kl * (kl + 1) * (kl + 2) // 6
 
