@@ -1,0 +1,9 @@
+# Tested environment for the scripts of "Hidden Curves and Short Duals":
+# Python 3.13.x, Linux x86_64 (Debian), gcc with OpenMP. All versions pinned to the tested ones.
+numpy==2.5.3
+galois==0.4.11
+numba==0.68.1
+scipy==1.18.1
+# Cost-analysis scripts only (polar_closure*.py, hirate_polarrlce.py, rm_rlce2.py, nogo_analysis.py):
+cryptographic-estimators==2.1.1
+# C programs: gcc -O3 -march=native -fopenmp -o nullspace2m nullspace2m.c  (same for rank2m.c, rankp.c)
