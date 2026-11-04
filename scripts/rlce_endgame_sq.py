@@ -11,7 +11,7 @@ rho is then the ratio, and hidden column = g'_a + rho g'_b.
 usage: python3 rlce_endgame_sq.py m n k w k_l seed workdir [max_rounds]   (reads/writes workdir/state.json)
 """
 import sys, os, json, time, itertools, numpy as np, galois
-sys.path.insert(0, '/root/rlce/scripts')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rlce_recover import keygen
 
 def veronese(GF, X):

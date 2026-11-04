@@ -15,10 +15,11 @@ Pipeline (public key only; the secret key is used ONLY to score intermediate ste
 usage: python3 rlce_e2e.py m n k w k_l t seed workdir [max_rounds]
 """
 import sys, os, json, time, subprocess, numpy as np, galois
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'rlce', 'scripts'))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)  # rlce_recover.py lives in the same scripts directory
 from rlce_recover import keygen, cubic_jet_matrix
 
-NULLSPACE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'rlce', 'scripts', 'nullspace2m')
+NULLSPACE = os.path.join(HERE, 'nullspace2m')  # gcc -O3 -march=native -fopenmp -o nullspace2m nullspace2m.c
 
 def log(t0, msg): print(f"[{time.time()-t0:7.0f}s] {msg}", flush=True)
 
