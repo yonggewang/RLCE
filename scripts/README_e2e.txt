@@ -13,7 +13,7 @@ Files (to be placed in RLCE/scripts next to rlce_recover.py, rank2m.c, nullspace
 
 Dependencies: requirements.txt pins the tested versions (Python 3.13, Linux x86_64): numpy 2.5.3, galois 0.4.11,
 numba 0.68.1, scipy 1.18.1; cryptographic-estimators 2.1.1 for the cost-analysis scripts only.
-  pip install galois
+  python3 -m pip install -r requirements.txt
   gcc -O3 -march=native -fopenmp -o nullspace2m nullspace2m.c
 
 Two modes.
@@ -26,7 +26,8 @@ Two modes.
 
   Strict-mode reproduction of the headline break (new key, seed 2; ~35 min on two cores). The square-code
   handover with k_l=21 needs w' < n-k-k_l+1 = 94, i.e. at least 21 known pairs; the seed-2 key exposes
-  7, 6, 8, 5 pairs in rounds 1-4 (13 after two rounds is NOT enough), so run FOUR jet rounds:
+  7, 6, 8, 5 pairs in rounds 1-4: two rounds (13 pairs) are NOT enough, three reach the threshold (21),
+  and the logged run used four for margin (26). Run four jet rounds:
     python3 rlce_keygen_export.py 10 846 732 114 57 2 key_r1s
     PKDIR=key_r1s python3 rlce_e2e.py 10 846 732 114 39 57 77 run_r1s 4            # four jet rounds
     PKDIR=key_r1s SQSEED=77 python3 rlce_endgame_sq.py 10 846 732 114 21 1 run_r1s 1500 run_r1s/state.json
@@ -35,6 +36,9 @@ Two modes.
     python3 -c "import numpy as np; print(np.array_equal(np.load('run_r1s/recovered_msg.npy'), np.load('key_r1s/secret/msg.npy')))"
   Log of this run (patched source, complete: key export, 4 jet rounds, square-code stage, Sidelnikov-Shestakov,
   decryption, separate plaintext comparison): logs_r1/strict_run_r1s.log.
+  logs_r1/strict_state/ holds that run's public key (pk.npy), ciphertext (ct.npy), final pairing state
+  (state.json) and recovered message (recovered_msg.npy); it contains no secret material (the secret key and
+  plaintext are regenerated deterministically by rlce_keygen_export.py with seed 2).
   logs_r1/strict_run_r1s_first_attempt.log is the earlier attempt kept for the record: it stopped after two jet
   rounds (13 pairs, handover not yet reachable) and its back end hit a Moebius-parameter-at-infinity bug in
   Sidelnikov-Shestakov, fixed in the current source (the parameter is now re-chosen when u = 0).
